@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{title}}</title>
+  <link rel="stylesheet" href="/stylesheets/dashboard.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar__brand">
+      <span class="topbar__icon">🐟</span>
+      <div>
+        <h1>AI Fish Sort</h1>
+        <p>Kalahavaintojen kojelauta</p>
+      </div>
+    </div>
+    <nav class="topbar__nav">
+      <a href="/api/v1">API-portaali</a>
+      <a href="/api/apiGuide">API-opas</a>
+      {{#if isAuthenticated}}
+        <a href="/admin" class="topbar__nav-cta">Hallinta</a>
+      {{else}}
+        <a href="/login" class="topbar__nav-cta">Kirjaudu</a>
+      {{/if}}
+    </nav>
+  </header>
+
+  <section class="filters">
+    <div class="filter-group">
+      <label for="filter-from">Alku</label>
+      <input type="date" id="filter-from">
+    </div>
+    <div class="filter-group">
+      <label for="filter-to">Loppu</label>
+      <input type="date" id="filter-to">
+    </div>
+    <div class="filter-group filter-group--fill">
+      <label for="filter-species">Lajit</label>
+      <div id="filter-species"></div>
+    </div>
+    <div class="filter-group filter-group--fill">
+      <label for="filter-sorting-unit">Lajitteluyksiköt</label>
+      <div id="filter-sorting-unit"></div>
+    </div>
+    <div class="filter-group filter-group--fill">
+      <label for="filter-catch-location">Saalispaikka</label>
+      <div id="filter-catch-location"></div>
+    </div>
+    <div class="filter-group filter-group--fill">
+      <label for="filter-batch">Erä</label>
+      <div id="filter-batch"></div>
+    </div>
+    <div class="filter-group filter-group--fill">
+      <label for="filter-sex">Sukupuoli</label>
+      <select id="filter-sex">
+        <option value="">Kaikki</option>
+        <option value="male">Koiras</option>
+        <option value="female">Naaras</option>
+        <option value="unknown">Ei tiedossa</option>
+      </select>
+    </div>
+    <div class="filter-actions">
+      <button id="filter-apply" class="btn btn-primary">Päivitä</button>
+      <button id="filter-reset" class="btn btn-secondary">Tyhjennä</button>
+    </div>
+  </section>
+
+  <main id="dashboard">
+    <section class="stats-row" id="stats-row">
+      <div class="stat-card"><span class="stat-card__label">Havaintoja</span><span class="stat-card__value" data-stat="count">–</span></div>
+      <div class="stat-card"><span class="stat-card__label">Kokonaispaino</span><span class="stat-card__value" data-stat="totalWeight">–</span><span class="stat-card__sub">kg</span></div>
+      <div class="stat-card"><span class="stat-card__label">Pituus, ka.</span><span class="stat-card__value" data-stat="avgLength">–</span><span class="stat-card__sub">mm</span></div>
+      <div class="stat-card"><span class="stat-card__label">Paino, ka.</span><span class="stat-card__value" data-stat="avgWeight">–</span><span class="stat-card__sub">g</span></div>
+      <div class="stat-card"><span class="stat-card__label">Lajeja</span><span class="stat-card__value" data-stat="speciesCount">–</span></div>
+      <div class="stat-card"><span class="stat-card__label">Lajitteluyksiköitä</span><span class="stat-card__value" data-stat="sortingUnitCount">–</span></div>
+    </section>
+
+    <h2 class="section-title">Aikajana</h2>
+    <section class="charts-grid">
+      <div class="chart-card chart-card--wide">
+        <div class="chart-header">
+          <h3>Havainnot ajassa</h3>
+          <div class="chart-controls">
+            <select id="timeline-granularity">
+              <option value="day">Päivä</option>
+              <option value="week">Viikko</option>
+              <option value="month" selected>Kuukausi</option>
+            </select>
+          </div>
+        </div>
+        <div class="chart-wrap"><canvas id="chart-timeline"></canvas></div>
+        <div class="chart-empty" data-empty-for="timeline" hidden>Ei havaintoja valitulla suodattimella.</div>
+      </div>
+
+      <div class="chart-card chart-card--wide">
+        <div class="chart-header">
+          <h3>Lajijakauma ajassa</h3>
+          <div class="chart-controls">
+            <select id="timeline-species-granularity">
+              <option value="day">Päivä</option>
+              <option value="week">Viikko</option>
+              <option value="month" selected>Kuukausi</option>
+            </select>
+          </div>
+        </div>
+        <div class="chart-wrap"><canvas id="chart-timeline-species"></canvas></div>
+        <div class="chart-empty" data-empty-for="timeline-species" hidden>Ei havaintoja valitulla suodattimella.</div>
+      </div>
+    </section>
+
+    <h2 class="section-title">Jakaumat</h2>
+    <section class="charts-grid">
+      <div class="chart-card">
+        <div class="chart-header"><h3>Top 10 lajia</h3></div>
+        <div class="chart-wrap"><canvas id="chart-top-species"></canvas></div>
+        <div class="chart-empty" data-empty-for="top-species" hidden>Ei havaintoja.</div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-header"><h3>Saalispaikkajakauma</h3></div>
+        <div class="chart-wrap"><canvas id="chart-catch-locations"></canvas></div>
+        <div class="chart-empty" data-empty-for="catch-locations" hidden>Ei havaintoja.</div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-header"><h3>Eräjakauma</h3></div>
+        <div class="chart-wrap"><canvas id="chart-batches"></canvas></div>
+        <div class="chart-empty" data-empty-for="batches" hidden>Ei havaintoja.</div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-header"><h3>Lajitteluyksikköjakauma</h3></div>
+        <div class="chart-wrap"><canvas id="chart-sorting-units"></canvas></div>
+        <div class="chart-empty" data-empty-for="sorting-units" hidden>Ei havaintoja.</div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-header"><h3>Sukupuolijakauma</h3></div>
+        <div class="chart-wrap"><canvas id="chart-sex"></canvas></div>
+        <div class="chart-empty" data-empty-for="sex" hidden>Ei havaintoja.</div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-header">
+          <h3>Pituusjakauma</h3>
+          <span class="chart-meta" id="meta-length"></span>
+        </div>
+        <div class="chart-wrap"><canvas id="chart-length"></canvas></div>
+        <div class="chart-empty" data-empty-for="length" hidden>Ei pituushavaintoja.</div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-header">
+          <h3>Painojakauma</h3>
+          <span class="chart-meta" id="meta-weight"></span>
+        </div>
+        <div class="chart-wrap"><canvas id="chart-weight"></canvas></div>
+        <div class="chart-empty" data-empty-for="weight" hidden>Ei painohavaintoja.</div>
+      </div>
+
+      <div class="chart-card chart-card--wide">
+        <div class="chart-header">
+          <h3>Pituus vs paino</h3>
+          <span class="chart-meta" id="meta-scatter"></span>
+        </div>
+        <div class="chart-wrap chart-wrap--tall"><canvas id="chart-scatter"></canvas></div>
+        <div class="chart-empty" data-empty-for="scatter" hidden>Ei riittävästi pituus/paino-pareja.</div>
+      </div>
+    </section>
+
+    <h2 class="section-title">Vertailu</h2>
+    <section class="charts-grid">
+      <div class="chart-card">
+        <div class="chart-header"><h3>Saalispaikat: kokonaispaino lajeittain</h3></div>
+        <div class="chart-wrap"><canvas id="chart-comparison-weight"></canvas></div>
+        <div class="chart-empty" data-empty-for="comparison-weight" hidden>Ei vertailudataa.</div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-header"><h3>Saalispaikat: kappalemäärä lajeittain</h3></div>
+        <div class="chart-wrap"><canvas id="chart-comparison-count"></canvas></div>
+        <div class="chart-empty" data-empty-for="comparison-count" hidden>Ei vertailudataa.</div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-header"><h3>Saalispaikat: keskipaino lajeittain</h3></div>
+        <div class="chart-wrap"><canvas id="chart-comparison-avg-weight"></canvas></div>
+        <div class="chart-empty" data-empty-for="comparison-avg-weight" hidden>Ei vertailudataa.</div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-header"><h3>Saalispaikat: keskipituus lajeittain</h3></div>
+        <div class="chart-wrap"><canvas id="chart-comparison-avg-length"></canvas></div>
+        <div class="chart-empty" data-empty-for="comparison-avg-length" hidden>Ei vertailudataa.</div>
+      </div>
+
+      <div class="chart-card">
+        <div class="chart-header"><h3>Sukupuolijakauma saalispaikoittain</h3></div>
+        <div class="chart-wrap"><canvas id="chart-comparison-sex"></canvas></div>
+        <div class="chart-empty" data-empty-for="comparison-sex" hidden>Ei vertailudataa.</div>
+      </div>
+    </section>
+
+    <h2 class="section-title">Viimeisimmät havainnot</h2>
+    <section class="table-card">
+      <div class="table-wrap">
+        <table class="data-table" id="observations-table">
+          <thead>
+            <tr>
+              <th>Aika</th>
+              <th>Laji</th>
+              <th>Lajitteluyksikkö</th>
+              <th>Sukupuoli</th>
+              <th class="num">Pituus (mm)</th>
+              <th class="num">Paino (g)</th>
+              <th class="num">AI</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="table-pagination">
+        <span id="table-info">–</span>
+        <div class="table-pagination__buttons">
+          <button id="table-prev" class="btn btn-secondary">Edellinen</button>
+          <button id="table-next" class="btn btn-secondary">Seuraava</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <span>Data haetaan reaaliajassa <a href="/api/v1">/api/v1</a> -rajapinnasta.</span>
+  </footer>
+
+  <script src="/javascripts/dashboard/api.js"></script>
+  <script src="/javascripts/dashboard/charts.js"></script>
+  <script src="/javascripts/dashboard/multi-dropdown.js"></script>
+  <script src="/javascripts/dashboard/index.js"></script>
+</body>
+</html>

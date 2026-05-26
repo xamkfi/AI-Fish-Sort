@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{title}}</title>
+    <link rel="stylesheet" href="/stylesheets/apiPortal.css">
+</head>
+<body>
+    <main class="api-portal">
+        <section class="api-hero">
+            <div class="api-hero__intro">
+                <p class="api-hero__eyebrow">API Builder</p>
+                <div class="api-hero__summary">
+                    <p class="api-hero__text">
+                        Muodosta ja testaa API-kyselyitä.
+                    </p>
+                    <a class="api-hero__link" href="/api/apiGuide" target="_blank" rel="noopener">Avaa API-opas</a>
+                </div>
+                <hr class="api-divider">
+            </div>
+        </section>
+
+        <section class="portal-section">
+            <div class="section-header">
+            </div>
+
+            <div class="portal-grid portal-grid--builder">
+                <section class="portal-panel portal-panel--builder">
+                    <div class="builder-top">
+                        <div class="builder-field">
+                            <label for="builderTarget">Endpoint</label>
+                            <select id="builderTarget">
+                                <option value="species">Kalalajit</option>
+                                <option value="sorting-units">Lajitteluyksiköt</option>
+                                <option value="catch-locations">Pyyntipaikat</option>
+                                <option value="fish-batches">Erät</option>
+                                <option value="fish-observations" selected>Havainnot</option>
+                                <option value="fish-stats/count">Yleisstatistiikka</option>
+                                <option value="fish-stats/summary">Yhteenveto</option>
+                                <option value="fish-stats/timeline">Aikasarja</option>
+                                <option value="fish-stats/distribution">Jakauma</option>
+                                <option value="fish-stats/comparison">Vertailu</option>
+                            </select>
+                        </div>
+
+                        <div class="builder-field" id="groupByField">
+                            <label for="builderGroupBy">Ryhmittely</label>
+                            <select id="builderGroupBy">
+                                <option value="species">Kalalajeittain</option>
+                                <option value="sortingUnit">Lajitteluyksiköittäin</option>
+                                <option value="catchLocation">Saalispaikoittain</option>
+                                <option value="batch">Erien mukaan</option>
+                                <option value="sex">Sukupuolen mukaan</option>
+                            </select>
+                        </div>
+
+                        <div class="builder-field" id="paginationField">
+                            <label>Sivutus</label>
+                            <div class="pagination-inputs">
+                                <input id="builderLimit" type="number" min="0" max="200" step="1" placeholder="limit">
+                                <input id="builderOffset" type="number" min="0" step="1" placeholder="offset">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="builder-controls">
+                        <button class="api-button api-button--secondary" type="button" id="addRuleButton">Lisää parametri</button>
+                        <button class="api-button api-button--ghost" type="button" id="clearRulesButton">Tyhjennä</button>
+                    </div>
+
+                    <div class="builder-rules" id="builderRules"></div>
+
+                    <div class="builder-preview">
+                        <div class="panel-heading">
+                            <h3>Valmis API-kutsu</h3>
+                        </div>
+
+                        <pre class="code-view code-view--builder" id="builtUrlBlock"><code id="builtUrl"></code></pre>
+
+                        <div class="builder-actions">
+                            <button class="api-button api-button--secondary" type="button" id="copyUrlButton">Kopioi URL</button>
+                            <button class="api-button api-button--ghost" type="button" id="testUrlButton">Testaa kutsu</button>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="portal-panel portal-panel--response">
+                    <div class="panel-heading">
+                        <h3>Vastausesikatselu</h3>
+                        <button class="copy-inline-button" type="button" data-copy-target="#responseOutput">Kopioi</button>
+                    </div>
+                    <pre class="code-view code-view--response" id="responseOutput"><code>{
+  "info": "Testaa muodostettu kutsu nähdäksesi vastauksen."
+}</code></pre>
+                </section>
+            </div>
+        </section>
+    </main>
+
+    <script src="/javascripts/apiPortal.js"></script>
+</body>
+</html>

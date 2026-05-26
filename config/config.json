@@ -1,0 +1,22 @@
+{
+  "development": {
+    "username": "root",
+    "password": "K4l4L4j1ttelu0nK1v44",
+    "database": "aifishsortdb",
+    "host": "192.168.68.56",
+    "dialect": "mysql",
+    "port": 3306,
+    "seederStorage": "sequelize",
+    "seederStorageTableName": "SequelizeData"
+  },
+  "production": {
+    "username": "root",
+    "password": "K4l4L4j1ttelu0nK1v44",
+    "database": "aifishsortdb",
+    "host": "192.168.68.56",
+    "dialect": "mysql",
+    "port": 3306,
+    "seederStorage": "sequelize",
+    "seederStorageTableName": "SequelizeData"
+  }
+}

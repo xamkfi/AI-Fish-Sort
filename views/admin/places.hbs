@@ -1,0 +1,101 @@
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h2 class="mb-1"><i class="bi bi-diagram-3 me-2"></i>Lajitteluyksiköt</h2>
+        <p class="text-muted mb-0">Lisää, selaa ja hallitse lajittelukoneita ja käsittelypisteitä.</p>
+    </div>
+</div>
+
+<div class="row mb-5">
+    <div class="col-12">
+        <div class="card p-4 shadow-sm border-0">
+            <h4 class="mb-4 text-primary"><i class="bi bi-diagram-3-fill me-2"></i>Lisää uusi lajitteluyksikkö</h4>
+
+            <form id="addLocationForm">
+                <div class="row">
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-bold">Lajitteluyksikön nimi *</label>
+                        <input type="text" class="form-control bg-light" id="locationName" required placeholder="Esim. Linja A">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-bold">Paikkakunta</label>
+                        <input type="text" class="form-control bg-light" id="locationMunicipality" placeholder="Esim. Tampere">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-bold text-muted">Sisäinen tunniste</label>
+                        <input type="text" class="form-control bg-light" value="Luodaan automaattisesti UUID:na" disabled>
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label fw-bold">Kuvaus</label>
+                    <textarea class="form-control bg-light" id="locationDescription" rows="4" placeholder="Esim. Pääsyötön lajittelulinja"></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100 py-2 fs-5 fw-bold">
+                    <i class="bi bi-cloud-arrow-up me-2"></i> Tallenna lajitteluyksikkö tietokantaan
+                </button>
+            </form>
+
+            <div id="locationMessage" class="mt-3"></div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12 mb-3 d-flex flex-wrap justify-content-between align-items-center gap-3">
+        <h4 class="mb-0">Kaikki lajitteluyksiköt</h4>
+        <button class="btn btn-sm btn-outline-secondary" type="button" id="refreshLocationsButton">
+            <i class="bi bi-arrow-clockwise me-1"></i>Päivitä lista
+        </button>
+    </div>
+
+    <div class="col-12">
+        <div id="locationsContainer" class="row g-4"></div>
+    </div>
+</div>
+
+<div class="modal fade" id="editLocationModal" tabindex="-1" aria-labelledby="editLocationModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div>
+                    <h5 class="modal-title" id="editLocationModalLabel">Muokkaa lajitteluyksikköä</h5>
+                    <div class="text-muted small" id="editLocationModalSubtitle"></div>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Sulje"></button>
+            </div>
+
+            <div class="modal-body">
+                <form id="editLocationForm">
+                    <input type="hidden" id="editLocationRecordId">
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Lajitteluyksikön nimi *</label>
+                            <input type="text" class="form-control bg-light" id="editLocationName" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Paikkakunta</label>
+                            <input type="text" class="form-control bg-light" id="editLocationMunicipality" placeholder="Esim. Tampere">
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Kuvaus</label>
+                        <textarea class="form-control bg-light" id="editLocationDescription" rows="5" placeholder="Esim. Pääsyötön lajittelulinja"></textarea>
+                    </div>
+                </form>
+            </div>
+
+            <div class="modal-footer flex-column align-items-stretch gap-3">
+                <div id="editLocationMessage"></div>
+                <div class="d-flex justify-content-end gap-2">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Peruuta</button>
+                    <button type="submit" form="editLocationForm" class="btn btn-primary fw-bold">
+                        <i class="bi bi-save me-2"></i>Päivitä lajitteluyksikkö
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

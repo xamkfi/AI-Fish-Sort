@@ -1,0 +1,16 @@
+services:
+  db:
+    image: mysql:8.0
+    container_name: aifishsort_mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: K4l4L4j1ttelu0nK1v44
+      MYSQL_DATABASE: aifishsortdb
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+volumes:
+  mysql_data:
+

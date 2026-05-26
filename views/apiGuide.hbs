@@ -1,0 +1,393 @@
+<main class="api-guide">
+  <header class="api-guide__header">
+    <p class="api-guide__eyebrow">AI Fish Sort API</p>
+    <h1>API-opas</h1>
+    <p>
+      Kaikki API-vastaukset tulevat JSON-muodossa.
+    </p>
+  </header>
+
+  <section class="api-guide__section">
+    <h2>Perusosoite</h2>
+    <p>API:n nykyinen versio on <strong>v1</strong>.</p>
+    <pre><code>{{baseUrl}}/api/v1</code></pre>
+  </section>
+
+  <section class="api-guide__section">
+    <h2>Peruslistat</h2>
+
+    <article class="api-example">
+      <h3>Näin haet kaikki kalalajit</h3>
+      <p>Tällä saat kalojen ID:t, joita käytetään havaintojen ja tilastojen rajaamiseen.</p>
+      <pre><code>GET {{baseUrl}}/api/v1/species</code></pre>
+    </article>
+
+    <article class="api-example">
+      <h3>Näin haet kaikki lajitteluyksiköt</h3>
+      <p>Tällä saat lajittelukoneiden ja käsittelypisteiden ID:t havaintojen ja tilastojen rajaamiseen.</p>
+      <pre><code>GET {{baseUrl}}/api/v1/sorting-units</code></pre>
+    </article>
+
+    <article class="api-example">
+      <h3>Näin haet kaikki pyyntipaikat</h3>
+      <p>Tällä saat pyyntipaikkojen ID:t, joita voi käyttää erien ja havaintojen rajaamiseen.</p>
+      <pre><code>GET {{baseUrl}}/api/v1/catch-locations</code></pre>
+    </article>
+
+    <article class="api-example">
+      <h3>Näin haet kaikki erät</h3>
+      <p>Erä yhdistää kalahavainnot pyyntipaikkaan ja pyyntiaikaan.</p>
+      <pre><code>GET {{baseUrl}}/api/v1/fish-batches</code></pre>
+    </article>
+
+    <article class="api-example">
+      <h3>Näin haet kaikki kalahavainnot</h3>
+      <p>Tämä palauttaa havaintolistan uusimmasta vanhimpaan.</p>
+      <pre><code>GET {{baseUrl}}/api/v1/fish-observations</code></pre>
+    </article>
+  </section>
+
+  <section class="api-guide__section">
+    <h2>Havaintojen hakeminen</h2>
+
+    <article class="api-example">
+      <h3>Näin haet kaikki hauet</h3>
+      <p>Rajaa haku Hauen <code>speciesId</code>-arvolla. Demoseedeissä Hauen ID on alla oleva UUID.</p>
+      <pre><code>GET {{baseUrl}}/api/v1/fish-observations?speciesId=11111111-1111-4111-8111-111111111111</code></pre>
+    </article>
+
+    <article class="api-example">
+      <h3>Näin haet hauet tietyltä aikaväliltä</h3>
+      <p><code>from</code> ja <code>to</code> rajaavat havaintoajan.</p>
+      <pre><code>GET {{baseUrl}}/api/v1/fish-observations?speciesId=11111111-1111-4111-8111-111111111111&amp;from=2026-04-19T00:00:00Z&amp;to=2026-04-20T00:00:00Z</code></pre>
+    </article>
+
+    <article class="api-example">
+      <h3>Näin haet vain uroshauet</h3>
+      <p><code>sex</code> voi olla <code>male</code>, <code>female</code> tai <code>unknown</code>.</p>
+      <pre><code>GET {{baseUrl}}/api/v1/fish-observations?speciesId=11111111-1111-4111-8111-111111111111&amp;sex=male</code></pre>
+    </article>
+
+    <article class="api-example">
+      <h3>Näin haet kalat tietystä lajitteluyksiköstä</h3>
+      <p>Vaihda <code>sortingUnitId</code> siihen ID:hen, jonka saat lajitteluyksikkölistasta.</p>
+      <pre><code>GET {{baseUrl}}/api/v1/fish-observations?sortingUnitId=aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa</code></pre>
+    </article>
+
+    <article class="api-example">
+      <h3>Näin haet kalat tietystä pyyntipaikasta</h3>
+      <p><code>catchLocationId</code> rajaa havainnot erän pyyntipaikan perusteella.</p>
+      <pre><code>GET {{baseUrl}}/api/v1/fish-observations?catchLocationId=ca111111-1111-4111-8111-111111111111</code></pre>
+    </article>
+
+    <article class="api-example">
+      <h3>Näin haet yhden erän havainnot</h3>
+      <p><code>batchId</code> rajaa tulokset valittuun erään.</p>
+      <pre><code>GET {{baseUrl}}/api/v1/fish-observations?batchId=ba111111-1111-4111-8111-111111111111</code></pre>
+    </article>
+
+    <article class="api-example">
+      <h3>Näin rajoitat tulosten määrää</h3>
+      <p><code>limit</code> kertoo montako riviä palautetaan ja <code>offset</code> mistä kohdasta aloitetaan.</p>
+      <pre><code>GET {{baseUrl}}/api/v1/fish-observations?limit=10&amp;offset=0</code></pre>
+    </article>
+
+    <article class="api-example">
+      <h3>Näin haet yhden havainnon ID:llä</h3>
+      <p>Vaihda lopussa oleva UUID haluttuun havainto-ID:hen.</p>
+      <pre><code>GET {{baseUrl}}/api/v1/fish-observations/90000000-0000-4000-8000-000000000001</code></pre>
+    </article>
+  </section>
+
+  <section class="api-guide__section">
+    <h2>Havaintojen lähettäminen</h2>
+
+    <article class="api-example">
+      <h3>Näin tallennat uuden kalahavainnon</h3>
+      <p>
+        Tallennus vaatii API-avaimen headerissa <code>X-API-Key</code>.
+        Testiavaimena toimii tällä hetkellä <code>salainen</code>.
+      </p>
+      <pre><code>POST {{baseUrl}}/api/v1/fish-observations</code></pre>
+    </article>
+
+    <article class="api-example">
+      <h3>Tarvittavat headerit</h3>
+      <p>Lähettävän laitteen tai järjestelmän pitää antaa nämä headerit.</p>
+      <pre><code>Content-Type: application/json
+X-API-Key: salainen</code></pre>
+    </article>
+
+    <article class="api-example">
+      <h3>Esimerkkidata</h3>
+      <p>
+        Pakollisia kenttiä ovat <code>observedAt</code> ja <code>speciesId</code>.
+        Muut kentät ovat alussa valinnaisia.
+      </p>
+      <pre><code>{
+  "observedAt": "2026-04-20T12:30:00Z",
+  "speciesId": "11111111-1111-4111-8111-111111111111",
+  "sortingUnitId": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+  "batchId": "ba111111-1111-4111-8111-111111111111",
+  "sex": "male",
+  "lengthMm": 720,
+  "weightG": 2850,
+  "aiConfidence": 0.9421,
+  "metadata": {
+    "source": "camera_1",
+    "imageFrame": 1042
+  }
+}</code></pre>
+    </article>
+
+    <article class="api-example">
+      <h3>cURL-esimerkki</h3>
+      <p>Tällä voi testata tallennusta komentoriviltä.</p>
+      <pre><code>curl -X POST {{baseUrl}}/api/v1/fish-observations -H "Content-Type: application/json" -H "X-API-Key: salainen" -d "{\"observedAt\":\"2026-04-20T12:30:00Z\",\"speciesId\":\"11111111-1111-4111-8111-111111111111\",\"sortingUnitId\":\"aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa\",\"batchId\":\"ba111111-1111-4111-8111-111111111111\",\"sex\":\"male\",\"lengthMm\":720,\"weightG\":2850,\"aiConfidence\":0.9421,\"metadata\":{\"source\":\"camera_1\",\"imageFrame\":1042}}"</code></pre>
+    </article>
+  </section>
+
+  <section class="api-guide__section">
+    <h2>Tilastot</h2>
+
+    <article class="api-example">
+      <h3>Yleisstatistiikka kaikista kaloista</h3>
+      <p>Palauttaa määrän, kokonaispainon kiloina, keskipituuden ja keskipainon.</p>
+      <pre><code>GET {{baseUrl}}/api/v1/fish-stats/count</code></pre>
+    </article>
+
+    <article class="api-example">
+      <h3>Näin näet montako kiloa haukea tuli tietyllä aikavälillä</h3>
+      <p>Vastauksessa <code>totalWeightKg</code> kertoo haukien kokonaiskilot.</p>
+      <pre><code>GET {{baseUrl}}/api/v1/fish-stats/count?speciesId=11111111-1111-4111-8111-111111111111&amp;from=2026-04-19T00:00:00Z&amp;to=2026-04-20T00:00:00Z</code></pre>
+    </article>
+
+    <article class="api-example">
+      <h3>Näin saat tilaston yhdestä pyyntipaikasta</h3>
+      <p><code>catchLocationId</code> toimii myös tilastoissa.</p>
+      <pre><code>GET {{baseUrl}}/api/v1/fish-stats/count?catchLocationId=ca111111-1111-4111-8111-111111111111</code></pre>
+    </article>
+
+    <article class="api-example">
+      <h3>Näin saat tilaston kalalajeittain</h3>
+      <p>Jokaiselle lajille näytetään määrä, kokonaiskilot, keskipituus ja keskipaino.</p>
+      <pre><code>GET {{baseUrl}}/api/v1/fish-stats/summary?groupBy=species</code></pre>
+    </article>
+
+    <article class="api-example">
+      <h3>Näin saat tilaston lajitteluyksiköittäin</h3>
+      <p>Tämä kertoo paljonko kalaa käsiteltiin missäkin lajitteluyksikössä.</p>
+      <pre><code>GET {{baseUrl}}/api/v1/fish-stats/summary?groupBy=sortingUnit</code></pre>
+    </article>
+
+    <article class="api-example">
+      <h3>Näin saat tilaston sukupuolen mukaan</h3>
+      <p>Tämä ryhmittelee tulokset arvoihin <code>male</code>, <code>female</code> ja <code>unknown</code>.</p>
+      <pre><code>GET {{baseUrl}}/api/v1/fish-stats/summary?groupBy=sex</code></pre>
+    </article>
+
+    <article class="api-example">
+      <h3>Näin saat kalalajikohtaisen tilaston tietystä lajitteluyksiköstä ja ajasta</h3>
+      <p>Filttereitä voi yhdistellä samaan kyselyyn.</p>
+      <pre><code>GET {{baseUrl}}/api/v1/fish-stats/summary?groupBy=species&amp;sortingUnitId=aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa&amp;from=2026-04-19T00:00:00Z&amp;to=2026-04-20T00:00:00Z</code></pre>
+    </article>
+
+    <article class="api-example">
+      <h3>Näin vertailet saalispaikkoja</h3>
+      <p>Palauttaa kalalaji- ja sukupuolikohtaiset vertailut saalispaikoittain.</p>
+      <pre><code>GET {{baseUrl}}/api/v1/fish-stats/comparison</code></pre>
+    </article>
+  </section>
+
+  <section class="api-guide__section">
+    <h2>Yleisimmät parametrit</h2>
+    <dl class="api-params">
+      <dt>speciesId</dt>
+      <dd>Rajaa tulokset tiettyyn kalalajiin.</dd>
+
+      <dt>sortingUnitId</dt>
+      <dd>Rajaa tulokset tiettyyn lajitteluyksikköön.</dd>
+
+      <dt>batchId</dt>
+      <dd>Rajaa tulokset tiettyyn erään.</dd>
+
+      <dt>catchLocationId</dt>
+      <dd>Rajaa tulokset erän pyyntipaikan perusteella.</dd>
+
+      <dt>sex</dt>
+      <dd>Rajaa sukupuolen mukaan. Sallitut arvot ovat <code>male</code>, <code>female</code> ja <code>unknown</code>.</dd>
+
+      <dt>from</dt>
+      <dd>Aikavälin alku, esimerkiksi <code>2026-04-19T00:00:00Z</code>.</dd>
+
+      <dt>to</dt>
+      <dd>Aikavälin loppu, esimerkiksi <code>2026-04-20T00:00:00Z</code>.</dd>
+
+      <dt>groupBy</dt>
+      <dd>Tilastojen ryhmittely. Sallitut arvot ovat <code>species</code>, <code>sortingUnit</code>, <code>catchLocation</code>, <code>batch</code> ja <code>sex</code>.</dd>
+
+      <dt>breakdown</dt>
+      <dd><code>speciesSexWeight</code> lisää <code>/fish-stats/summary</code>-vastaukseen ryhmäkohtaisen erittelyn ja ryhmittelemättömään <code>/fish-stats/timeline</code>-vastaukseen aikapistekohtaisen erittelyn kalalajin, sukupuolen ja painon mukaan.</dd>
+    </dl>
+  </section>
+
+  <section class="api-guide__section">
+    <h2>ID-selitteet</h2>
+    <p>
+      Nämä arvot tulevat tämän projektin demoseedeistä. Oikeassa käytössä ajantasaiset ID:t saa
+      aina endpointtien <code>/api/v1/species</code>, <code>/api/v1/sorting-units</code>,
+      <code>/api/v1/catch-locations</code> ja <code>/api/v1/fish-batches</code> kautta.
+    </p>
+
+    <article class="api-reference">
+      <h3>Kalalajit</h3>
+      <div class="api-table-wrap">
+        <table class="api-table">
+          <thead>
+            <tr>
+              <th>Nimi</th>
+              <th>speciesId</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Hauki</td>
+              <td><code>11111111-1111-4111-8111-111111111111</code></td>
+            </tr>
+            <tr>
+              <td>Ahven</td>
+              <td><code>22222222-2222-4222-8222-222222222222</code></td>
+            </tr>
+            <tr>
+              <td>Kuha</td>
+              <td><code>33333333-3333-4333-8333-333333333333</code></td>
+            </tr>
+            <tr>
+              <td>Lohi</td>
+              <td><code>44444444-4444-4444-8444-444444444444</code></td>
+            </tr>
+            <tr>
+              <td>Siika</td>
+              <td><code>55555555-5555-4555-8555-555555555555</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </article>
+
+    <article class="api-reference">
+      <h3>Lajitteluyksiköt</h3>
+      <div class="api-table-wrap">
+        <table class="api-table">
+          <thead>
+            <tr>
+              <th>Nimi</th>
+              <th>sortingUnitId</th>
+              <th>Paikkakunta</th>
+              <th>Kuvaus</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Linja A</td>
+              <td><code>aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa</code></td>
+              <td>Tampere</td>
+              <td>Pääsyötön lajittelulinja</td>
+            </tr>
+            <tr>
+              <td>Linja B</td>
+              <td><code>bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb</code></td>
+              <td>Tampere</td>
+              <td>Toissijainen lajittelulinja</td>
+            </tr>
+            <tr>
+              <td>Vastaanottoallas</td>
+              <td><code>cccccccc-cccc-4ccc-8ccc-cccccccccccc</code></td>
+              <td>Tampere</td>
+              <td>Kalojen ensimmäinen havaintopiste</td>
+            </tr>
+            <tr>
+              <td>Poistopiste</td>
+              <td><code>dddddddd-dddd-4ddd-8ddd-dddddddddddd</code></td>
+              <td>Tampere</td>
+              <td>Lajittelun jälkeinen poistopiste</td>
+            </tr>
+            <tr>
+              <td>Testikamera</td>
+              <td><code>eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee</code></td>
+              <td>Tampere</td>
+              <td>Kehitysympäristön testilajitteluyksikkö</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </article>
+
+    <article class="api-reference">
+      <h3>Pyyntipaikat</h3>
+      <div class="api-table-wrap">
+        <table class="api-table">
+          <thead>
+            <tr>
+              <th>Nimi</th>
+              <th>catchLocationId</th>
+              <th>Vesistö</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Pyhäjärven pohjoinen selkä</td>
+              <td><code>ca111111-1111-4111-8111-111111111111</code></td>
+              <td>Pyhäjärvi</td>
+            </tr>
+            <tr>
+              <td>Näsijärven rantavyöhyke</td>
+              <td><code>ca222222-2222-4222-8222-222222222222</code></td>
+              <td>Näsijärvi</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </article>
+
+    <article class="api-reference">
+      <h3>Erät</h3>
+      <div class="api-table-wrap">
+        <table class="api-table">
+          <thead>
+            <tr>
+              <th>Koodi</th>
+              <th>batchId</th>
+              <th>catchLocationId</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>ERA-2026-04-19-A</td>
+              <td><code>ba111111-1111-4111-8111-111111111111</code></td>
+              <td><code>ca111111-1111-4111-8111-111111111111</code></td>
+            </tr>
+            <tr>
+              <td>ERA-2026-04-20-B</td>
+              <td><code>ba222222-2222-4222-8222-222222222222</code></td>
+              <td><code>ca222222-2222-4222-8222-222222222222</code></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </article>
+
+    <article class="api-reference">
+      <h3>Muut arvot</h3>
+      <dl class="api-params">
+        <dt>sex</dt>
+        <dd><code>male</code> = uros, <code>female</code> = naaras, <code>unknown</code> = ei tiedossa.</dd>
+
+        <dt>groupBy</dt>
+        <dd><code>species</code> = kalalajeittain, <code>sortingUnit</code> = lajitteluyksiköittäin, <code>catchLocation</code> = saalispaikoittain, <code>batch</code> = erien mukaan, <code>sex</code> = sukupuolen mukaan.</dd>
+      </dl>
+    </article>
+  </section>
+</main>
+
+<script src="/javascripts/apiGuide.js"></script>
