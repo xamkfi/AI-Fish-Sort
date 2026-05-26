@@ -54,6 +54,62 @@
             background-color: #0b5ed7;
             border-color: #0a58ca;
         }
+
+        body.light-mode {
+            background-color: #f4f6f9 !important;
+        }
+        body.light-mode .login-card {
+            background-color: #ffffff;
+            border-color: #e2e8f0;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+        }
+        body.light-mode .login-card .text-white {
+            color: #1a202c !important;
+        }
+        .login-card .text-muted {
+            color: #9ca3af !important;
+        }
+        body.light-mode .login-card .text-muted {
+            color: #718096 !important;
+        }
+        body.light-mode .form-control {
+            background-color: #ffffff;
+            border-color: #e2e8f0;
+            color: #1a202c;
+        }
+        body.light-mode .form-control:focus {
+            background-color: #ffffff;
+            border-color: #3182ce;
+            color: #1a202c;
+        }
+        body.light-mode .form-control::placeholder {
+            color: #a0aec0;
+        }
+        body.light-mode .form-label {
+            color: #4a5568;
+        }
+
+        .dm-toggle {
+            position: fixed; bottom: 20px; right: 20px; z-index: 999;
+            width: 44px; height: 44px; border-radius: 50%;
+            border: 1px solid #495057; background: #2c3034;
+            color: #f8f9fa; cursor: pointer; font-size: 1.2rem;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+            transition: background 0.2s, color 0.2s, border-color 0.2s;
+        }
+        .dm-toggle:hover {
+            background: #3d4349;
+        }
+        body.light-mode .dm-toggle {
+            background: #ffffff;
+            border-color: #e2e8f0;
+            color: #1a202c;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        body.light-mode .dm-toggle:hover {
+            background: #f7fafc;
+        }
     </style>
 </head>
 <body>
@@ -78,21 +134,46 @@
             <div class="mb-3">
                 <label for="username" class="form-label">Kayttajanimi</label>
                 <input type="text" class="form-control" id="username" name="username"
-                       placeholder="Syota kayttajanimi" required autofocus autocomplete="username">
+                       placeholder="Syötä käyttäjänimi" required autofocus autocomplete="username">
             </div>
 
             <div class="mb-4">
                 <label for="password" class="form-label">Salasana</label>
                 <input type="password" class="form-control" id="password" name="password"
-                       placeholder="Syota salasana" required autocomplete="current-password">
+                       placeholder="Syötä salasana" required autocomplete="current-password">
             </div>
 
             <button type="submit" class="btn btn-login btn-primary w-100">
                 <i class="bi bi-box-arrow-in-right me-1"></i> Kirjaudu
             </button>
+
+            <a href="/" class="btn w-100 mt-3" style="background-color:#dc3545;border-color:#dc3545;color:#fff;font-weight:600;padding:0.6rem;">
+                <i class="bi bi-house-door me-1"></i> Takaisin etusivulle
+            </a>
         </form>
     </div>
 </div>
+
+<button class="dm-toggle" id="dmToggle" title="Vaihda teemaa">
+    <span id="dmIcon">☀</span>
+</button>
+<script>
+(function() {
+    var isLight = localStorage.getItem('darkMode') === 'false';
+    if (isLight) document.body.classList.add('light-mode');
+    var btn = document.getElementById('dmToggle');
+    var icon = document.getElementById('dmIcon');
+    if (btn) {
+        icon.textContent = isLight ? '☾' : '☀';
+        btn.addEventListener('click', function() {
+            document.body.classList.toggle('light-mode');
+            var light = document.body.classList.contains('light-mode');
+            localStorage.setItem('darkMode', light ? 'false' : 'true');
+            icon.textContent = light ? '☾' : '☀';
+        });
+    }
+})();
+</script>
 
 </body>
 </html>

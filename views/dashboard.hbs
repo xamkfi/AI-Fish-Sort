@@ -235,6 +235,41 @@
     <span>Data haetaan reaaliajassa <a href="/api/v1">/api/v1</a> -rajapinnasta.</span>
   </footer>
 
+  <button class="dm-toggle" id="backToTop" title="Takaisin ylös" style="right:76px;display:none;">
+    <span>↑</span>
+  </button>
+
+  <button class="dm-toggle" id="dmToggle" title="Vaihda teemaa">
+    <span id="dmIcon">☀</span>
+  </button>
+  <script>
+    (function() {
+      var isLight = localStorage.getItem('darkMode') === 'false';
+      if (isLight) document.body.classList.add('light-mode');
+
+      var topBtn = document.getElementById('backToTop');
+      if (topBtn) {
+        window.addEventListener('scroll', function() {
+          topBtn.style.display = window.scrollY > 300 ? '' : 'none';
+        });
+        topBtn.addEventListener('click', function() {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+      }
+
+      var btn = document.getElementById('dmToggle');
+      var icon = document.getElementById('dmIcon');
+      if (btn) {
+        icon.textContent = isLight ? '☾' : '☀';
+        btn.addEventListener('click', function() {
+          document.body.classList.toggle('light-mode');
+          var light = document.body.classList.contains('light-mode');
+          localStorage.setItem('darkMode', light ? 'false' : 'true');
+          icon.textContent = light ? '☾' : '☀';
+        });
+      }
+    })();
+  </script>
   <script src="/javascripts/dashboard/api.js"></script>
   <script src="/javascripts/dashboard/charts.js"></script>
   <script src="/javascripts/dashboard/multi-dropdown.js"></script>

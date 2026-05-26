@@ -2,6 +2,12 @@
     <h4 class="text-center mb-4"><i class="bi bi-gear-fill text-primary"></i> Fish AI</h4>
 
     <div class="nav flex-column nav-pills me-3 px-2">
+        <a class="nav-link text-start" href="/">
+            <i class="bi bi-house-door me-2"></i> Takaisin etusivulle
+        </a>
+
+        <hr class="my-3 mx-2 border-secondary opacity-50">
+
         <a class="nav-link text-start {{#if (eq activeTab 'places')}}active{{/if}}" href="/admin/sorting-units">
             <i class="bi bi-diagram-3 me-2"></i> Lajitteluyksiköt
         </a>
@@ -24,5 +30,11 @@
         <a class="nav-link text-start text-danger" href="/login/logout">
             <i class="bi bi-box-arrow-left me-2"></i> Kirjaudu ulos
         </a>
+
+        <hr class="my-3 mx-2 border-secondary opacity-50">
+        <button class="dark-toggle" id="darkModeToggle" type="button">
+            <i class="bi bi-moon-stars-fill"></i>
+            <span id="darkModeLabel">Tumma tila</span>
+        </button>
     </div>
 </div>

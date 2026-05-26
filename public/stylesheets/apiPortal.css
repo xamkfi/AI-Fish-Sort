@@ -1,311 +1,391 @@
 body {
-  margin: 0;
-  font: 15px/1.5 Inter, "Segoe UI", Arial, sans-serif;
-  color: #1d2a24;
-  background: #f4f4ef;
+    margin: 0;
+    font:
+        15px/1.5 Inter,
+        "Segoe UI",
+        Arial,
+        sans-serif;
+    color: #1d2a24;
+    background: #f4f4ef;
+    transition:
+        background-color 0.2s,
+        color 0.2s;
 }
 
 .api-portal {
-  max-width: 1360px;
-  margin: 0 auto;
-  padding: 18px 28px 28px;
+    max-width: 1360px;
+    margin: 0 auto;
+    padding: 18px 28px 28px;
 }
 
 .api-hero {
-  margin-bottom: 0;
-  padding: 0;
+    margin-bottom: 0;
+    padding: 0;
 }
 
 .api-hero__intro {
-  max-width: 760px;
+    max-width: 760px;
 }
 
 .api-hero__summary {
-  display: flex;
-  align-items: baseline;
-  gap: 14px;
-  flex-wrap: wrap;
-  margin-top: 8px;
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    flex-wrap: wrap;
+    margin-top: 8px;
 }
 
 .api-hero__eyebrow,
 .section-header__eyebrow {
-  color: #0f766e;
-  font-size: 12px;
-  font-weight: 700;
-  text-transform: uppercase;
+    color: #0f766e;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
 }
 
 .api-hero__eyebrow {
-  margin: 0;
+    margin: 0;
 }
 
 .section-header__eyebrow {
-  margin: 0 0 8px;
+    margin: 0 0 8px;
 }
 
 .api-hero__text {
-  margin: 0;
-  color: #55625c;
+    margin: 0;
+    color: #55625c;
 }
 
 .builder-actions,
 .builder-controls {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
 }
 
 .api-button,
 .copy-inline-button,
 .rule-editor__delete {
-  border-radius: 8px;
+    border-radius: 8px;
 }
 
 .api-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 42px;
-  padding: 10px 16px;
-  border: 1px solid transparent;
-  text-decoration: none;
-  cursor: pointer;
-  font: inherit;
-  font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 42px;
+    padding: 10px 16px;
+    border: 1px solid transparent;
+    text-decoration: none;
+    cursor: pointer;
+    font: inherit;
+    font-weight: 600;
 }
 
 .api-button:disabled,
 .copy-inline-button:disabled,
 .rule-editor__delete:disabled {
-  opacity: 0.55;
-  cursor: default;
+    opacity: 0.55;
+    cursor: default;
 }
 
 .api-button--primary {
-  color: #ffffff;
-  background: #0f766e;
+    color: #ffffff;
+    background: #0f766e;
 }
 
 .api-button--secondary {
-  color: #0f766e;
-  background: #ffffff;
-  border-color: #98c4bc;
+    color: #0f766e;
+    background: #ffffff;
+    border-color: #98c4bc;
 }
 
 .api-button--ghost {
-  color: #44534d;
-  background: #edf1e8;
-  border-color: #d7e1d1;
+    color: #44534d;
+    background: #edf1e8;
+    border-color: #d7e1d1;
 }
 
 .api-hero__link {
-  color: #0d6efd;
-  font-size: 13px;
-  font-weight: 600;
-  text-decoration: none;
+    color: #0d6efd;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
 }
 
 .api-hero__link:hover {
-  text-decoration: underline;
+    text-decoration: underline;
 }
 
 .portal-panel {
-  background: #ffffff;
-  border: 1px solid #d8dfd5;
+    background: #ffffff;
+    border: 1px solid #d8dfd5;
 }
 
 .api-divider {
-  margin: 14px 0 0;
-  border: 0;
-  border-top: 1px solid #d8dfd5;
+    margin: 14px 0 0;
+    border: 0;
+    border-top: 1px solid #d8dfd5;
 }
 
 .portal-section {
-  margin-bottom: 28px;
-  padding-top: 14px;
+    margin-bottom: 28px;
+    padding-top: 14px;
 }
 
 .section-header {
-  display: flex;
-  justify-content: space-between;
-  gap: 16px;
-  margin-bottom: 14px;
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 14px;
 }
 
 .portal-grid {
-  display: grid;
-  gap: 18px;
+    display: grid;
+    gap: 18px;
 }
 
 .portal-grid--builder {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  align-items: start;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
 }
 
 .portal-panel {
-  padding: 20px;
+    padding: 20px;
 }
 
 .portal-panel--builder,
 .portal-panel--response {
-  display: flex;
-  flex-direction: column;
+    display: flex;
+    flex-direction: column;
 }
 
 .panel-heading {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 10px;
 }
 
 .panel-heading h3,
 .portal-panel h3 {
-  margin: 0;
-  font-size: 20px;
+    margin: 0;
+    font-size: 20px;
 }
 
 .builder-top {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 14px;
-  margin-bottom: 14px;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+    margin-bottom: 14px;
 }
 
 .builder-field {
-  display: grid;
-  gap: 8px;
+    display: grid;
+    gap: 8px;
 }
 
 .builder-field label {
-  font-weight: 700;
-  color: #30443c;
+    font-weight: 700;
+    color: #30443c;
 }
 
 .builder-field select,
 .builder-field input,
 .rule-editor select,
 .rule-editor input {
-  width: 100%;
-  min-height: 42px;
-  padding: 10px 12px;
-  border: 1px solid #ccd8cf;
-  border-radius: 8px;
-  font: inherit;
-  background: #ffffff;
-  box-sizing: border-box;
+    width: 100%;
+    min-height: 42px;
+    padding: 10px 12px;
+    border: 1px solid #ccd8cf;
+    border-radius: 8px;
+    font: inherit;
+    background: #ffffff;
+    box-sizing: border-box;
 }
 
 .pagination-inputs {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
 }
 
 .builder-rules {
-  display: grid;
-  gap: 12px;
-  margin-top: 16px;
-  margin-bottom: 18px;
-  flex: 1 0 auto;
+    display: grid;
+    gap: 12px;
+    margin-top: 16px;
+    margin-bottom: 18px;
+    flex: 1 0 auto;
 }
 
 .rule-editor {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr) auto;
-  gap: 10px;
-  align-items: end;
-  padding: 14px;
-  background: #f8faf7;
-  border: 1px solid #dbe4d8;
-  border-radius: 8px;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr) auto;
+    gap: 10px;
+    align-items: end;
+    padding: 14px;
+    background: #f8faf7;
+    border: 1px solid #dbe4d8;
+    border-radius: 8px;
 }
 
 .rule-editor__delete {
-  min-height: 42px;
-  padding: 10px 12px;
-  border: 1px solid #e5d0d0;
-  background: #fff6f6;
-  color: #8a4343;
-  cursor: pointer;
-  font: inherit;
-  font-weight: 700;
+    min-height: 42px;
+    padding: 10px 12px;
+    border: 1px solid #e5d0d0;
+    background: #fff6f6;
+    color: #8a4343;
+    cursor: pointer;
+    font: inherit;
+    font-weight: 700;
 }
 
 .builder-preview {
-  margin-top: 8px;
-  padding: 16px;
-  background: #f8faf7;
-  border: 1px solid #dbe4d8;
-  border-radius: 8px;
-  display: flex;
-  flex-direction: column;
+    margin-top: 8px;
+    padding: 16px;
+    background: #f8faf7;
+    border: 1px solid #dbe4d8;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
 }
 
 .code-view {
-  margin: 0;
-  padding: 16px;
-  overflow: auto;
-  background: #1f2622;
-  color: #edf2ef;
-  border: 1px solid #313a35;
-  border-radius: 8px;
+    margin: 0;
+    padding: 16px;
+    overflow: auto;
+    background: #1f2622;
+    color: #edf2ef;
+    border: 1px solid #313a35;
+    border-radius: 8px;
 }
 
 .code-view code {
-  font: 13px/1.5 Consolas, "Courier New", monospace;
+    font:
+        13px/1.5 Consolas,
+        "Courier New",
+        monospace;
 }
 
 .code-view--builder,
 .code-view--response {
-  min-height: 320px;
+    min-height: 320px;
 }
 
 .builder-preview .code-view,
 .portal-panel--response .code-view {
-  flex: 1 1 auto;
+    flex: 1 1 auto;
 }
 
 .builder-actions {
-  margin-top: 14px;
+    margin-top: 14px;
 }
 
 .copy-inline-button {
-  min-height: 34px;
-  padding: 6px 10px;
-  border: 1px solid #ccd8cf;
-  background: #ffffff;
-  color: #30443c;
-  cursor: pointer;
-  font: inherit;
-  font-size: 13px;
-  font-weight: 700;
+    min-height: 34px;
+    padding: 6px 10px;
+    border: 1px solid #ccd8cf;
+    background: #ffffff;
+    color: #30443c;
+    cursor: pointer;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 700;
 }
 
 .empty-builder {
-  padding: 18px;
-  color: #567069;
-  background: #f7faf7;
-  border: 1px dashed #ccd8cf;
-  border-radius: 8px;
+    padding: 18px;
+    color: #567069;
+    background: #f7faf7;
+    border: 1px dashed #ccd8cf;
+    border-radius: 8px;
 }
 
 @media (max-width: 1080px) {
-  .portal-grid--builder {
-    grid-template-columns: 1fr;
-  }
+    .portal-grid--builder {
+        grid-template-columns: 1fr;
+    }
 }
 
 @media (max-width: 760px) {
-  .api-portal {
-    padding: 14px 16px 16px;
-  }
+    .api-portal {
+        padding: 14px 16px 16px;
+    }
 
-  .builder-top,
-  .rule-editor,
-  .pagination-inputs {
-    grid-template-columns: 1fr;
-  }
+    .builder-top,
+    .rule-editor,
+    .pagination-inputs {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Dark mode */
+body.dark-mode {
+    background: #0f1117;
+    color: #e2e8f0;
+}
+body.dark-mode .portal-panel {
+    background: #1a2332;
+    border-color: #2d3748;
+}
+body.dark-mode .portal-panel h3 {
+    color: #e2e8f0;
+}
+body.dark-mode .api-hero__eyebrow,
+body.dark-mode .section-header__eyebrow {
+    color: #63b3ed;
+}
+body.dark-mode .api-hero__text {
+    color: #a0aec0;
+}
+body.dark-mode .api-divider {
+    border-top-color: #2d3748;
+}
+body.dark-mode .builder-field label {
+    color: #a0aec0;
+}
+body.dark-mode .builder-field select,
+body.dark-mode .builder-field input,
+body.dark-mode .rule-editor select,
+body.dark-mode .rule-editor input {
+    background: #1a2332;
+    border-color: #2d3748;
+    color: #e2e8f0;
+}
+body.dark-mode .rule-editor {
+    background: #161b22;
+    border-color: #2d3748;
+}
+body.dark-mode .rule-editor__delete {
+    background: #3a1a1a;
+    border-color: #6a2d2d;
+    color: #fc8181;
+}
+body.dark-mode .builder-preview {
+    background: #161b22;
+    border-color: #2d3748;
+}
+body.dark-mode .api-button--secondary {
+    color: #63b3ed;
+    background: #1a2332;
+    border-color: #2d3748;
+}
+body.dark-mode .api-button--ghost {
+    color: #a0aec0;
+    background: #1a2332;
+    border-color: #2d3748;
+}
+body.dark-mode .copy-inline-button {
+    background: #1a2332;
+    border-color: #2d3748;
+    color: #a0aec0;
+}
+body.dark-mode .empty-builder {
+    color: #718096;
+    background: #161b22;
+    border-color: #2d3748;
+}
+body.dark-mode .panel-heading h3 {
+    color: #e2e8f0;
 }
