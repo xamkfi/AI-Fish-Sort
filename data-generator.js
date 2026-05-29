@@ -16,7 +16,11 @@
  */
 
 const crypto = require("crypto");
+const fs = require("fs");
+const path = require("path");
 const db = require("./models");
+
+const PID_FILE = "/tmp/data-generator.pid";
 
 const INTERVAL_SECONDS = parseInt(process.env.INTERVAL_SECONDS, 10) || 120;
 const OBSERVATIONS_PER_RUN =
@@ -177,6 +181,14 @@ async function main() {
     process.exit(1);
   }
 
+  // Write PID file for stop script
+  try {
+    fs.writeFileSync(PID_FILE, String(process.pid), "utf8");
+    console.log(`PID ${process.pid} written to ${PID_FILE}`);
+  } catch (err) {
+    console.warn(`Could not write PID file: ${err.message}`);
+  }
+
   // Run immediately, then every INTERVAL_SECONDS
   await runCycle();
   setInterval(runCycle, INTERVAL_SECONDS * 1000);
@@ -188,14 +200,24 @@ async function main() {
 
 // ── Graceful shutdown ──────────────────────────────────────────────────────
 
+function cleanup() {
+  try {
+    if (fs.existsSync(PID_FILE)) {
+      fs.unlinkSync(PID_FILE);
+    }
+  } catch (_) {}
+}
+
 process.on("SIGINT", async () => {
   console.log("\n[data-generator] Shutting down...");
+  cleanup();
   await db.sequelize.close();
   process.exit(0);
 });
 
 process.on("SIGTERM", async () => {
   console.log("\n[data-generator] Shutting down...");
+  cleanup();
   await db.sequelize.close();
   process.exit(0);
 });
