@@ -1,0 +1,134 @@
+<h2><i class="bi bi-upload me-2"></i>Tuo dataa</h2>
+<p class="text-muted mb-4">
+    Tuo havaintoja tiedostosta tai syötä manuaalisesti.
+    <span class="badge bg-warning text-dark ms-2">mockup</span>
+</p>
+
+<div class="row g-4">
+
+
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title"><i class="bi bi-file-earmark-arrow-up me-2"></i>Tuo tiedostosta</h5>
+                <p class="card-text text-muted">
+                    Valitse tuotava tiedosto. Tuetut tiedostomuodot määritellään myöhemmin
+                    (.xlsx, .csv, .json, .md jne.).
+                </p>
+
+                <div class="border border-2 border-dashed rounded-3 p-5 text-center bg-light" style="border-style: dashed !important;">
+                    <i class="bi bi-cloud-upload text-muted" style="font-size: 3rem;"></i>
+                    <p class="mt-3 mb-2 fw-bold">Vedä tiedosto tähän tai valitse se</p>
+                    <p class="text-muted small mb-3">Tiedostotyyppiä ei ole vielä rajattu</p>
+                    <input class="form-control w-50 mx-auto" type="file" id="file-upload" disabled>
+                    <div class="form-text mt-2">Tiedoston tuonti ei ole vielä käytössä.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="col-lg-7">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title"><i class="bi bi-pencil-square me-2"></i>Syötä manuaalisesti</h5>
+                <p class="card-text text-muted">Täytä alla olevat kentät ja lisää havainto.</p>
+
+                <form class="row g-3" onsubmit="return false;">
+                    <div class="col-md-6">
+                        <label for="import-species" class="form-label">Laji</label>
+                        <select class="form-select" id="import-species" disabled>
+                            <option>Hauki</option>
+                            <option>Ahven</option>
+                            <option>Kuha</option>
+                            <option>Lohi</option>
+                            <option>Siika</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="import-sex" class="form-label">Sukupuoli</label>
+                        <select class="form-select" id="import-sex" disabled>
+                            <option>Ei tiedossa</option>
+                            <option>Koiras</option>
+                            <option>Naaras</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label for="import-length" class="form-label">Pituus (mm)</label>
+                        <input type="number" class="form-control" id="import-length" placeholder="esim. 450" disabled>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label for="import-weight" class="form-label">Paino (g)</label>
+                        <input type="number" class="form-control" id="import-weight" placeholder="esim. 1200" disabled>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label for="import-confidence" class="form-label">AI-varmuus</label>
+                        <input type="number" class="form-control" id="import-confidence" placeholder="esim. 0.92" min="0" max="1" step="0.01" disabled>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="import-unit" class="form-label">Lajitteluyksikkö</label>
+                        <select class="form-select" id="import-unit" disabled>
+                            <option>Linja A</option>
+                            <option>Linja B</option>
+                            <option>Vastaanottoallas</option>
+                            <option>Poistopiste</option>
+                            <option>Testikamera</option>
+                        </select>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label for="import-batch" class="form-label">Erä</label>
+                        <select class="form-select" id="import-batch" disabled>
+                            <option>ERA-2026-04-19-A</option>
+                            <option>ERA-2026-04-20-B</option>
+                        </select>
+                    </div>
+
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-primary" disabled>
+                            <i class="bi bi-plus-lg me-1"></i> Lisää havainto
+                        </button>
+                        <span class="text-muted ms-2 small">Ei vielä käytössä</span>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="col-lg-5">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title"><i class="bi bi-table me-2"></i>Esikatselu</h5>
+                <p class="card-text text-muted">Tuotavat rivit näkyvät tässä ennen tallennusta.</p>
+
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead>
+                            <tr>
+                                <th>Laji</th>
+                                <th>Sukupuoli</th>
+                                <th class="text-end">Pituus</th>
+                                <th class="text-end">Paino</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td colspan="4" class="text-center text-muted py-4">
+                                    <i class="bi bi-inbox" style="font-size: 1.5rem;"></i>
+                                    <p class="mt-2 mb-0">Ei tuotavia rivejä</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>

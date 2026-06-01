@@ -276,6 +276,14 @@ router.get("/guides", (req, res) => {
   });
 });
 
+router.get("/import", (req, res) => {
+  res.render("admin/import", {
+    title: "Fish AI - Tuo dataa",
+    adminLayout: true,
+    activeTab: "import",
+  });
+});
+
 router.get("/change-password", csrfProtection, (req, res) => {
   res.render("admin/changePassword", {
     title: "Fish AI - Vaihda salasana",
