@@ -1,226 +1,271 @@
 #!/usr/bin/env node
 
 /**
- * AI Fish Sort — Test Data Generator
+ * AI Fish Sort – mockup data generator
  *
- * Periodically inserts random fish observations into the database
- * using the existing species, sorting units, and fish batches.
+ * Posts 2 new fish observations every 60 seconds via the
+ * POST /api/v1/fish-observations endpoint.
  *
- * Usage:
- *   node data-generator.js
- *
- * Optional env vars:
- *   INTERVAL_SECONDS   — How often to generate data (default: 120)
- *   OBSERVATIONS_PER_RUN — How many observations per batch (default: 5)
- *   NODE_ENV           — 'development' or 'production' (default: 'development')
+ * Configuration (environment variables):
+ *   API_BASE_URL   – base URL of the running server   (default: http://localhost:3000)
+ *   WRITE_API_KEY  – API key for write access          (default: none)
  */
 
-const crypto = require("crypto");
-const fs = require("fs");
-const path = require("path");
-const db = require("./models");
+"use strict";
 
-const PID_FILE = "/tmp/data-generator.pid";
+// ── configuration ──────────────────────────────────────────────────────────
 
-const INTERVAL_SECONDS = parseInt(process.env.INTERVAL_SECONDS, 10) || 120;
-const OBSERVATIONS_PER_RUN =
-  parseInt(process.env.OBSERVATIONS_PER_RUN, 10) || 5;
+const BASE_URL = (process.env.API_BASE_URL || "http://localhost:3000").replace(
+  /\/+$/,
+  "",
+);
+const API_KEY = process.env.WRITE_API_KEY || "";
+const INTERVAL_MS = 60_000; // 1 minute
+const OBSERVATIONS_PER_TICK = 2;
 
-// ── Species-specific realistic measurement ranges ──────────────────────────
-const SPECIES_RANGES = {
-  Hauki: { lengthMin: 300, lengthMax: 1000, weightMin: 400, weightMax: 8000 },
-  Ahven: { lengthMin: 120, lengthMax: 400, weightMin: 50, weightMax: 800 },
-  Kuha: { lengthMin: 350, lengthMax: 750, weightMin: 500, weightMax: 4000 },
-  Lohi: { lengthMin: 400, lengthMax: 1000, weightMin: 1200, weightMax: 7000 },
-  Siika: { lengthMin: 200, lengthMax: 550, weightMin: 150, weightMax: 2000 },
+// ── demo data (hardcoded fallback — matches db seeders) ────────────────────
+
+const DEMO_SPECIES = [
+  { id: "11111111-1111-4111-8111-111111111111", name: "Hauki" },
+  { id: "22222222-2222-4222-8222-222222222222", name: "Ahven" },
+  { id: "33333333-3333-4333-8333-333333333333", name: "Kuha" },
+  { id: "44444444-4444-4444-8444-444444444444", name: "Lohi" },
+  { id: "55555555-5555-4555-8555-555555555555", name: "Siika" },
+];
+
+const DEMO_SORTING_UNITS = [
+  "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+  "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
+  "cccccccc-cccc-4ccc-8ccc-cccccccccccc",
+  "dddddddd-dddd-4ddd-8ddd-dddddddddddd",
+  "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee",
+];
+
+const DEMO_BATCHES = [
+  "ba111111-1111-4111-8111-111111111111",
+  "ba222222-2222-4222-8222-222222222222",
+];
+
+// ── realistic size ranges per species (mm / g) ─────────────────────────────
+
+const SPECIES_SIZES = {
+  Hauki: { length: [350, 1200], weight: [400, 8000] },
+  Ahven: { length: [120, 450], weight: [40, 900] },
+  Kuha: { length: [300, 750], weight: [400, 5000] },
+  Lohi: { length: [450, 1050], weight: [1200, 9000] },
+  Siika: { length: [220, 580], weight: [150, 2200] },
 };
 
-const SEXES = ["male", "female", "unknown"];
-const SEX_WEIGHTS = [0.4, 0.4, 0.2]; // 40% male, 40% female, 20% unknown
+// ── helpers ─────────────────────────────────────────────────────────────────
 
-// ── Helpers ────────────────────────────────────────────────────────────────
+function timestamp() {
+  return new Date().toISOString().replace("T", " ").substring(0, 19);
+}
 
-function randomInt(min, max) {
+function log(...args) {
+  console.log(`[${timestamp()}]`, ...args);
+}
+
+function randInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
-function randomDecimal(min, max, decimals) {
-  const val = Math.random() * (max - min) + min;
-  return parseFloat(val.toFixed(decimals));
+function pick(items) {
+  return items[Math.floor(Math.random() * items.length)];
 }
 
-function pickRandom(arr) {
-  return arr[Math.floor(Math.random() * arr.length)];
+function pickSex() {
+  const r = Math.random();
+  if (r < 0.45) return "male";
+  if (r < 0.9) return "female";
+  return "unknown";
 }
 
-function weightedRandom(arr, weights) {
-  const total = weights.reduce((a, b) => a + b, 0);
-  let r = Math.random() * total;
-  for (let i = 0; i < arr.length; i++) {
-    r -= weights[i];
-    if (r <= 0) return arr[i];
+function clamp(value, min, max) {
+  return Math.min(Math.max(value, min), max);
+}
+
+// wrapped normal-ish distribution – more realistic than uniform
+function rangedValue(min, max) {
+  const range = max - min;
+  const center = min + range / 2;
+  // Box-Muller simplified: sum of two uniforms creates a triangle distribution
+  const u1 = Math.random();
+  const u2 = Math.random();
+  const normalish = center + (u1 - u2) * range * 0.6;
+  return clamp(Math.round(normalish), min, max);
+}
+
+// ── API fetch helpers ───────────────────────────────────────────────────────
+
+async function fetchJson(url) {
+  const res = await fetch(url);
+  if (!res.ok) {
+    throw new Error(`HTTP ${res.status} from ${url}`);
   }
-  return arr[arr.length - 1];
+  const body = await res.json();
+  return body;
 }
 
-// ── Global caches (refreshed each cycle to pick up any new data) ──────────
-
-let speciesCache = [];
-let sortingUnitCache = [];
-let batchCache = [];
-
-async function refreshCaches() {
-  [speciesCache, sortingUnitCache, batchCache] = await Promise.all([
-    db.Species.findAll({ raw: true }),
-    db.SortingUnit.findAll({ raw: true }),
-    db.FishBatch.findAll({ raw: true }),
-  ]);
+async function fetchSpecies() {
+  try {
+    const body = await fetchJson(`${BASE_URL}/api/v1/species`);
+    if (Array.isArray(body.data) && body.data.length > 0) {
+      return body.data.map((s) => ({ id: s.id, name: s.finnishName }));
+    }
+  } catch (err) {
+    log(
+      "Warning: could not fetch species from API, using demo data:",
+      err.message,
+    );
+  }
+  return DEMO_SPECIES;
 }
 
-// ── Generate a single observation ──────────────────────────────────────────
+async function fetchSortingUnits() {
+  try {
+    const body = await fetchJson(`${BASE_URL}/api/v1/sorting-units`);
+    if (Array.isArray(body.data) && body.data.length > 0) {
+      return body.data.map((u) => u.id);
+    }
+  } catch (err) {
+    log(
+      "Warning: could not fetch sorting units from API, using demo data:",
+      err.message,
+    );
+  }
+  return DEMO_SORTING_UNITS;
+}
 
-function generateObservation() {
-  const species = pickRandom(speciesCache);
-  const ranges = SPECIES_RANGES[species.finnishName] || {
-    lengthMin: 100,
-    lengthMax: 500,
-    weightMin: 100,
-    weightMax: 1500,
+async function fetchBatches() {
+  try {
+    const body = await fetchJson(`${BASE_URL}/api/v1/fish-batches`);
+    if (Array.isArray(body.data) && body.data.length > 0) {
+      return body.data.map((b) => b.id);
+    }
+  } catch (err) {
+    log(
+      "Warning: could not fetch batches from API, using demo data:",
+      err.message,
+    );
+  }
+  return DEMO_BATCHES;
+}
+
+// ── observation generation ──────────────────────────────────────────────────
+
+function generateObservation(speciesList, sortingUnitIds, batchIds) {
+  const species = pick(speciesList);
+  const sizes = SPECIES_SIZES[species.name] || {
+    length: [100, 800],
+    weight: [50, 4000],
   };
 
-  const lengthMm = randomInt(ranges.lengthMin, ranges.lengthMax);
-  // Rough weight-from-length heuristic with noise
-  const estimatedWeight = randomInt(ranges.weightMin, ranges.weightMax);
-  const sex = weightedRandom(SEXES, SEX_WEIGHTS);
-  const aiConfidence = randomDecimal(0.75, 0.995, 4);
-
-  const observation = {
-    id: crypto.randomUUID(),
-    observedAt: new Date(),
+  return {
     speciesId: species.id,
-    sex,
-    lengthMm,
-    weightG: estimatedWeight,
-    sortingUnitId: pickRandom(sortingUnitCache).id,
-    batchId: batchCache.length > 0 ? pickRandom(batchCache).id : null,
-    aiConfidence,
-    metadata: JSON.stringify({
-      source: "data-generator",
-      generatedAt: new Date().toISOString(),
-    }),
+    observedAt: new Date().toISOString(),
+    sex: pickSex(),
+    lengthMm: rangedValue(...sizes.length),
+    weightG: rangedValue(...sizes.weight),
+    sortingUnitId: pick(sortingUnitIds),
+    batchId: pick(batchIds),
+    aiConfidence: clamp(Math.random() * 0.2 + 0.8, 0, 1), // 0.80–1.00
   };
-
-  return observation;
 }
 
-// ── Insert a batch of observations ─────────────────────────────────────────
+// ── API posting ─────────────────────────────────────────────────────────────
 
-async function insertObservations(count) {
-  const observations = Array.from({ length: count }, () =>
-    generateObservation(),
-  );
+async function postObservation(observation) {
+  const headers = {
+    "Content-Type": "application/json",
+  };
 
-  await db.FishObservation.bulkCreate(observations, {
-    updateOnDuplicate: [
-      "observedAt",
-      "speciesId",
-      "sex",
-      "lengthMm",
-      "weightG",
-      "sortingUnitId",
-      "batchId",
-      "aiConfidence",
-      "metadata",
-      "updatedAt",
-    ],
+  if (API_KEY) {
+    headers["X-API-Key"] = API_KEY;
+  }
+
+  const res = await fetch(`${BASE_URL}/api/v1/fish-observations`, {
+    method: "POST",
+    headers,
+    body: JSON.stringify(observation),
   });
 
-  return observations;
+  if (!res.ok) {
+    const body = await res.text();
+    throw new Error(`HTTP ${res.status}: ${body}`);
+  }
+
+  return res.json();
 }
 
-// ── Main loop ──────────────────────────────────────────────────────────────
+// ── main loop ───────────────────────────────────────────────────────────────
 
-async function runCycle() {
-  try {
-    await refreshCaches();
+async function tick(speciesList, sortingUnitIds, batchIds, tickNumber) {
+  log(
+    `Tick #${tickNumber} — generating ${OBSERVATIONS_PER_TICK} observation(s)...`,
+  );
 
-    if (speciesCache.length === 0) {
-      console.warn("[data-generator] No species found — skipping cycle.");
-      return;
+  for (let i = 0; i < OBSERVATIONS_PER_TICK; i++) {
+    const obs = generateObservation(speciesList, sortingUnitIds, batchIds);
+    try {
+      await postObservation(obs);
+      log(
+        `  ✓ posted: species=${obs.speciesId.substring(0, 8)}... ` +
+          `sex=${obs.sex} length=${obs.lengthMm}mm weight=${obs.weightG}g ` +
+          `confidence=${obs.aiConfidence.toFixed(4)}`,
+      );
+    } catch (err) {
+      log(`  ✗ failed: ${err.message}`);
     }
-    if (sortingUnitCache.length === 0) {
-      console.warn("[data-generator] No sorting units found — skipping cycle.");
-      return;
-    }
-
-    const inserted = await insertObservations(OBSERVATIONS_PER_RUN);
-    console.log(
-      `[${new Date().toISOString()}] Inserted ${inserted.length} observation(s)` +
-        ` | species: ${speciesCache.length}, sortingUnits: ${sortingUnitCache.length}, batches: ${batchCache.length}`,
-    );
-  } catch (err) {
-    console.error(`[data-generator] Error during cycle:`, err.message);
   }
 }
-
-// ── Startup ────────────────────────────────────────────────────────────────
 
 async function main() {
-  console.log("============================================");
-  console.log("  AI Fish Sort — Test Data Generator");
-  console.log(`  Interval:         ${INTERVAL_SECONDS}s`);
-  console.log(`  Observations/run: ${OBSERVATIONS_PER_RUN}`);
-  console.log("============================================");
-
-  // Wait for database connection (models/index.js initialises on first require)
-  try {
-    await db.sequelize.authenticate();
-    console.log("Database connection OK.\n");
-  } catch (err) {
-    console.error("CRITICAL: Could not connect to database.", err.message);
-    process.exit(1);
+  if (!API_KEY) {
+    log(
+      "Warning: WRITE_API_KEY is not set. POST requests will likely fail " +
+        "unless the server runs without requireApiKey middleware.",
+    );
   }
 
-  // Write PID file for stop script
-  try {
-    fs.writeFileSync(PID_FILE, String(process.pid), "utf8");
-    console.log(`PID ${process.pid} written to ${PID_FILE}`);
-  } catch (err) {
-    console.warn(`Could not write PID file: ${err.message}`);
-  }
+  log(`Connecting to ${BASE_URL} ...`);
 
-  // Run immediately, then every INTERVAL_SECONDS
-  await runCycle();
-  setInterval(runCycle, INTERVAL_SECONDS * 1000);
+  // fetch reference data once at startup
+  const [speciesList, sortingUnitIds, batchIds] = await Promise.all([
+    fetchSpecies(),
+    fetchSortingUnits(),
+    fetchBatches(),
+  ]);
 
-  console.log(
-    `Generator running. Next cycle in ${INTERVAL_SECONDS}s. Press Ctrl+C to stop.\n`,
+  log(
+    `Ready: ${speciesList.length} species, ${sortingUnitIds.length} sorting units, ` +
+      `${batchIds.length} batches.`,
   );
+  log(
+    `Will generate ${OBSERVATIONS_PER_TICK} observation(s) every ` +
+      `${INTERVAL_MS / 1000} seconds.`,
+  );
+  log("Press Ctrl+C to stop.");
+
+  let tickNumber = 0;
+
+  // fire first tick immediately, then on interval
+  await tick(speciesList, sortingUnitIds, batchIds, ++tickNumber);
+
+  const interval = setInterval(() => {
+    tick(speciesList, sortingUnitIds, batchIds, ++tickNumber);
+  }, INTERVAL_MS);
+
+  // graceful shutdown
+  function shutdown() {
+    log("Shutting down...");
+    clearInterval(interval);
+    process.exit(0);
+  }
+
+  process.on("SIGINT", shutdown);
+  process.on("SIGTERM", shutdown);
 }
-
-// ── Graceful shutdown ──────────────────────────────────────────────────────
-
-function cleanup() {
-  try {
-    if (fs.existsSync(PID_FILE)) {
-      fs.unlinkSync(PID_FILE);
-    }
-  } catch (_) {}
-}
-
-process.on("SIGINT", async () => {
-  console.log("\n[data-generator] Shutting down...");
-  cleanup();
-  await db.sequelize.close();
-  process.exit(0);
-});
-
-process.on("SIGTERM", async () => {
-  console.log("\n[data-generator] Shutting down...");
-  cleanup();
-  await db.sequelize.close();
-  process.exit(0);
-});
 
 main().catch((err) => {
   console.error("Fatal error:", err);

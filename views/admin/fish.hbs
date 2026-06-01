@@ -12,11 +12,15 @@
 
             <form id="addFishForm">
                 <div class="row">
-                    <div class="col-md-6 mb-3">
+                    <div class="col-md-4 mb-3">
                         <label class="form-label fw-bold">Kalan nimi *</label>
                         <input type="text" class="form-control bg-light" id="fishName" required placeholder="Esim. Hauki">
                     </div>
-                    <div class="col-md-6 mb-3">
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-bold">Tieteellinen nimi</label>
+                        <input type="text" class="form-control bg-light" id="fishScientificName" placeholder="Esim. Esox lucius">
+                    </div>
+                    <div class="col-md-4 mb-3">
                         <label class="form-label fw-bold text-muted">Sisainen tunniste</label>
                         <input type="text" class="form-control bg-light" value="Luodaan automaattisesti UUID:na" disabled>
                     </div>
@@ -60,9 +64,15 @@
                 <form id="editFishForm">
                     <input type="hidden" id="editFishRecordId">
 
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Kalan nimi *</label>
-                        <input type="text" class="form-control bg-light" id="editFishName" required>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Kalan nimi *</label>
+                            <input type="text" class="form-control bg-light" id="editFishName" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Tieteellinen nimi</label>
+                            <input type="text" class="form-control bg-light" id="editFishScientificName" placeholder="Esim. Esox lucius">
+                        </div>
                     </div>
                 </form>
             </div>
