@@ -115,7 +115,7 @@ async function fetchSpecies() {
     }
   } catch (err) {
     log(
-      "Warning: could not fetch species from API, using demo data:",
+      "Varoitus: lajeja ei voitu hakea API:sta, käytetään demodataa:",
       err.message,
     );
   }
@@ -130,7 +130,7 @@ async function fetchSortingUnits() {
     }
   } catch (err) {
     log(
-      "Warning: could not fetch sorting units from API, using demo data:",
+      "Varoitus: lajitteluyksiköitä ei voitu hakea API:sta, käytetään demodataa:",
       err.message,
     );
   }
@@ -145,7 +145,7 @@ async function fetchBatches() {
     }
   } catch (err) {
     log(
-      "Warning: could not fetch batches from API, using demo data:",
+      "Varoitus: eriä ei voitu hakea API:sta, käytetään demodataa:",
       err.message,
     );
   }
@@ -201,21 +201,19 @@ async function postObservation(observation) {
 // ── main loop ───────────────────────────────────────────────────────────────
 
 async function tick(speciesList, sortingUnitIds, batchIds, tickNumber) {
-  log(
-    `Tick #${tickNumber} — generating ${OBSERVATIONS_PER_TICK} observation(s)...`,
-  );
+  log(`Kierros #${tickNumber} — luodaan ${OBSERVATIONS_PER_TICK} havaintoa...`);
 
   for (let i = 0; i < OBSERVATIONS_PER_TICK; i++) {
     const obs = generateObservation(speciesList, sortingUnitIds, batchIds);
     try {
       await postObservation(obs);
       log(
-        `  ✓ posted: species=${obs.speciesId.substring(0, 8)}... ` +
-          `sex=${obs.sex} length=${obs.lengthMm}mm weight=${obs.weightG}g ` +
-          `confidence=${obs.aiConfidence.toFixed(4)}`,
+        `  ✓ lähetetty: laji=${obs.speciesId.substring(0, 8)}... ` +
+          `sukupuoli=${obs.sex} pituus=${obs.lengthMm}mm paino=${obs.weightG}g ` +
+          `varmuus=${obs.aiConfidence.toFixed(4)}`,
       );
     } catch (err) {
-      log(`  ✗ failed: ${err.message}`);
+      log(`  ✗ epäonnistui: ${err.message}`);
     }
   }
 }
@@ -223,12 +221,12 @@ async function tick(speciesList, sortingUnitIds, batchIds, tickNumber) {
 async function main() {
   if (!API_KEY) {
     log(
-      "Warning: WRITE_API_KEY is not set. POST requests will likely fail " +
-        "unless the server runs without requireApiKey middleware.",
+      "Varoitus: WRITE_API_KEY ei ole asetettu. POST-pyynnöt todennäköisesti " +
+        "epäonnistuvat, ellei palvelin toimi ilman requireApiKey-middlewarea.",
     );
   }
 
-  log(`Connecting to ${BASE_URL} ...`);
+  log(`Yhdistetään osoitteeseen ${BASE_URL} ...`);
 
   // fetch reference data once at startup
   const [speciesList, sortingUnitIds, batchIds] = await Promise.all([
@@ -238,14 +236,14 @@ async function main() {
   ]);
 
   log(
-    `Ready: ${speciesList.length} species, ${sortingUnitIds.length} sorting units, ` +
-      `${batchIds.length} batches.`,
+    `Valmis: ${speciesList.length} lajia, ${sortingUnitIds.length} lajitteluyksikköä, ` +
+      `${batchIds.length} erää.`,
   );
   log(
-    `Will generate ${OBSERVATIONS_PER_TICK} observation(s) every ` +
-      `${INTERVAL_MS / 1000} seconds.`,
+    `Luodaan ${OBSERVATIONS_PER_TICK} havaintoa joka ` +
+      `${INTERVAL_MS / 1000} sekunti.`,
   );
-  log("Press Ctrl+C to stop.");
+  log("Paina Ctrl+C lopettaaksesi generaatio.");
 
   let tickNumber = 0;
 
@@ -258,7 +256,7 @@ async function main() {
 
   // graceful shutdown
   function shutdown() {
-    log("Shutting down...");
+    log("Sammutetaan...");
     clearInterval(interval);
     process.exit(0);
   }
@@ -268,6 +266,6 @@ async function main() {
 }
 
 main().catch((err) => {
-  console.error("Fatal error:", err);
+  console.error("Kriittinen virhe:", err);
   process.exit(1);
 });
