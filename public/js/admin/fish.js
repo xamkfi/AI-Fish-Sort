@@ -38,7 +38,7 @@ async function fetchCsrfToken() {
   });
 
   if (!response.ok) {
-    throw new Error("CSRF-tokenin haku epaonnistui.");
+    throw new Error("CSRF-tokenin haku epäonnistui.");
   }
 
   const data = await response.json();
@@ -84,7 +84,7 @@ function renderFishCard(species) {
           </div>
 
           <p class="card-text text-muted flex-grow-1">
-            Tata kalalajia voidaan kayttaa havaintojen speciesId-arvona.
+            Tätä kalalajia voidaan käyttää havaintojen speciesId-arvona.
           </p>
 
           <div class="rounded bg-light border p-3 small mt-3">
@@ -139,13 +139,13 @@ async function loadFish() {
 
     const result = await response.json();
     if (!response.ok) {
-      throw new Error(result.error || "Kalojen haku epaonnistui.");
+      throw new Error(result.error || "Kalojen haku epäonnistui.");
     }
 
     const fish = result.data || [];
     if (fish.length === 0) {
       container.innerHTML =
-        '<div class="col-12 text-center text-muted py-5 bg-white rounded shadow-sm">Kaloja ei ole viela lisatty.</div>';
+        '<div class="col-12 text-center text-muted py-5 bg-white rounded shadow-sm">Kaloja ei ole vielä lisätty.</div>';
       return;
     }
 
@@ -156,7 +156,7 @@ async function loadFish() {
 
     container.innerHTML = fish.map(renderFishCard).join("");
   } catch (error) {
-    container.innerHTML = `<div class="col-12 text-center text-danger py-5 bg-white rounded shadow-sm">${escapeHtml(error.message || "Kalojen haku epaonnistui.")}</div>`;
+    container.innerHTML = `<div class="col-12 text-center text-danger py-5 bg-white rounded shadow-sm">${escapeHtml(error.message || "Kalojen haku epäonnistui.")}</div>`;
   }
 }
 
@@ -197,14 +197,14 @@ async function submitFishForm(event) {
 
     const result = await response.json().catch(() => ({}));
     if (!response.ok) {
-      throw new Error(result.error || "Kalan tallennus epaonnistui.");
+      throw new Error(result.error || "Kalan tallennus epäonnistui.");
     }
 
-    showFishMessage("Kala lisatty onnistuneesti.", "success");
+    showFishMessage("Kala lisätty onnistuneesti.", "success");
     form.reset();
     await loadFish();
   } catch (error) {
-    showFishMessage(error.message || "Kalan tallennus epaonnistui.", "danger");
+    showFishMessage(error.message || "Kalan tallennus epäonnistui.", "danger");
   } finally {
     submitButton.disabled = false;
     submitButton.innerHTML = originalHtml;
@@ -236,7 +236,7 @@ function resetEditFishForm() {
 function openEditFishModal(speciesId) {
   const species = fishCache.get(speciesId);
   if (!species) {
-    window.alert("Kalaa ei loytynyt muokkausta varten.");
+    window.alert("Kalaa ei löytynyt muokkausta varten.");
     return;
   }
 
@@ -306,10 +306,10 @@ async function submitEditFishForm(event) {
 
     const result = await response.json().catch(() => ({}));
     if (!response.ok) {
-      throw new Error(result.error || "Kalan paivitys epaonnistui.");
+      throw new Error(result.error || "Kalan päivitys epaonnistui.");
     }
 
-    showEditFishMessage("Kala paivitetty onnistuneesti.", "success");
+    showEditFishMessage("Kala päivitetty onnistuneesti.", "success");
     await loadFish();
 
     window.setTimeout(() => {
@@ -317,7 +317,7 @@ async function submitEditFishForm(event) {
     }, 700);
   } catch (error) {
     showEditFishMessage(
-      error.message || "Kalan paivitys epaonnistui.",
+      error.message || "Kalan päivitys epäonnistui.",
       "danger",
     );
   } finally {
@@ -329,7 +329,7 @@ async function submitEditFishForm(event) {
 }
 
 async function deleteFish(speciesId) {
-  if (!window.confirm("Haluatko varmasti poistaa taman kalan tietokannasta?")) {
+  if (!window.confirm("Haluatko varmasti poistaa tämän kalan tietokannasta?")) {
     return;
   }
 
@@ -345,13 +345,13 @@ async function deleteFish(speciesId) {
 
     const result = await response.json().catch(() => ({}));
     if (!response.ok) {
-      throw new Error(result.error || "Kalan poisto epaonnistui.");
+      throw new Error(result.error || "Kalan poisto epäonnistui.");
     }
 
     showFishMessage("Kala poistettu onnistuneesti.", "success");
     await loadFish();
   } catch (error) {
-    showFishMessage(error.message || "Kalan poisto epaonnistui.", "danger");
+    showFishMessage(error.message || "Kalan poisto epäonnistui.", "danger");
   }
 }
 
