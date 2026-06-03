@@ -391,6 +391,11 @@ X-API-Key: salainen</code></pre>
   </section>
 </main>
 
+<button class="dm-toggle" id="backToTop" title="Takaisin ylös"
+  style="position:fixed;bottom:20px;right:76px;z-index:999;width:44px;height:44px;border-radius:50%;border:1px solid #c1d1d8;background:#fff;color:#172026;cursor:pointer;font-size:1.2rem;display:none;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.12);transition:background 0.2s,color 0.2s,border-color 0.2s;">
+  <span>↑</span>
+</button>
+
 <button class="dm-toggle" id="dmToggle" title="Tumma tila"
   style="position:fixed;bottom:20px;right:20px;z-index:999;width:44px;height:44px;border-radius:50%;border:1px solid #c1d1d8;background:#fff;color:#172026;cursor:pointer;font-size:1.2rem;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,0.12);transition:background 0.2s,color 0.2s,border-color 0.2s;">
   <span id="dmIcon">☾</span>
@@ -407,6 +412,16 @@ X-API-Key: salainen</code></pre>
     localStorage.setItem('darkMode',d);
     i.textContent=d?'☀':'☾';
   });}
+
+  var topBtn = document.getElementById('backToTop');
+  if (topBtn) {
+    window.addEventListener('scroll', function() {
+      topBtn.style.display = window.scrollY > 300 ? 'flex' : 'none';
+    });
+    topBtn.addEventListener('click', function() {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+  }
 })();
 </script>
 <script src="/javascripts/apiGuide.js"></script>
