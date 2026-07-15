@@ -66,6 +66,8 @@ resetDatabase
 ```
 **Komento tulee ajaa kun järjestelmä käynnistetään ensimmäistä kertaa. Tämän avulla saadaa admin-tunnukset sekä mock-up data.**
 
+Mock-up dataa voidaan myös generoida lisää ajamalla generate-data.bat skripti. Skripti lisää tietokantaan satunnaisia kalahavaintoja hyödyntäen api rajapintoja
+
 ## Huomioitavaa
 
 AI Fish Sort -järjestelmä on vielä kehitysvaiheessa. Lopullista lajittelulaitetta ei ole vielä käytössä, eikä lopullinen kerättävä datasisältö ole täysin varmistunut.
