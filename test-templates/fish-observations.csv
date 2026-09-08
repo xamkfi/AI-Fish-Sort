@@ -1,0 +1,9 @@
+species,observedAt,sex,lengthMm,weightG,aiConfidence,sortingUnit,batch
+Hauki,2026-05-01T10:30:00,koiras,520,1400,0.93,Linja A,ERA-2026-04-19-A
+Ahven,2026-05-01T10:31:12,naaras,210,150,0.88,Linja A,ERA-2026-04-19-A
+Kuha,2026-05-01T10:33:45,koiras,610,3100,0.95,Linja B,ERA-2026-04-19-A
+Lohi,2026-05-01T10:35:02,naaras,780,4600,0.91,Linja B,ERA-2026-04-20-B
+Siika,2026-05-01T10:36:30,unknown,340,650,0.79,Vastaanottoallas,ERA-2026-04-20-B
+Ahven,2026-05-01T10:38:19,male,185,95,0.84,Testikamera,
+Hauki,2026-05-01T10:40:00,female,610,2100,0.97,Poistopiste,
+Kuha,2026-05-01T10:41:47,,450,900,,Vastaanottoallas,ERA-2026-04-20-B

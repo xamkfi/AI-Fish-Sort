@@ -1,0 +1,7 @@
+species;observedAt;sex;lengthMm;weightG;aiConfidence;sortingUnit;batch
+Hauki;2026-05-02T09:00:00;koiras;540;1600;0.9;"Linja A";ERA-2026-04-19-A
+Turska;2026-05-02T09:01:00;naaras;400;800;0.8;Linja B;ERA-2026-04-19-A
+Ahven;;female;200;120;1.2;;
+Siika;not-a-date;unknown;300;500;0.7;Testikamera;ERA-2026-04-20-B
+Kuha;2026-05-02T09:05:00;koiras;"450";"1000";0.85;Olematon linja;ERA-2026-04-20-B
+Lohi;2026-05-02T09:06:30;naaras;800;5200;0.94;Linja A;

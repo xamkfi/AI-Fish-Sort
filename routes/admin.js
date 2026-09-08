@@ -5,6 +5,7 @@ const router = express.Router();
 const bcrypt = require("bcrypt");
 const csrf = require("csurf");
 const { Admin, SortingUnit, Species } = require("../models");
+const importController = require("../controllers/importController");
 
 const csrfProtection = csrf({ cookie: false });
 
@@ -281,8 +282,12 @@ router.get("/import", (req, res) => {
     title: "Fish AI - Tuo dataa",
     adminLayout: true,
     activeTab: "import",
+    script: "/js/admin/import.js",
   });
 });
+
+router.get("/import/options", importController.showOptions);
+router.post("/import/observations", csrfProtection, importController.importObservations);
 
 router.get("/change-password", csrfProtection, (req, res) => {
   res.render("admin/changePassword", {
