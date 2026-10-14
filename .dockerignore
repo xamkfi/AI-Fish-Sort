@@ -7,12 +7,24 @@ yarn-error.log*
 .git
 .gitignore
 .claude
+.codex
+.agents
+.secrets
+.secrests
 
 .env
 .env.*
 !.env.example
 
 REFERENCE
-Dockerfile
+Example
+[Ee][Xx][Aa][Mm][Pp][Ll][Ee]
+MySQL
+config/config.json
+test
+test-templates
+coverage
+.npm
+Dockerfile*
 docker-compose*.yml
-rebuild-docker.bat
+*.bat

@@ -21,8 +21,22 @@ var apiV1Router = require('./routes/api/v1');
 var loginRouter = require('./routes/login');
 var adminRouter = require('./routes/admin');
 var requireLogin = require('./middleware/requireLogin');
+var traffic = require('./middleware/trafficProtection').createTrafficProtection();
 
 var app = express();
+app.set('trust proxy', traffic.settings.trustProxy);
+
+// Readiness checks bypass sessions and require a working database connection.
+app.get('/health', function(req, res) {
+  res.set('Cache-Control', 'no-store');
+  db.sequelize.authenticate()
+    .then(function() {
+      res.json({ status: 'ok' });
+    })
+    .catch(function() {
+      res.status(503).json({ status: 'unavailable' });
+    });
+});
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -32,6 +46,12 @@ hbs.registerPartials(path.join(__dirname, 'views', 'partials'));
 hbs.registerHelper('eq', function(a, b) {
   return a === b;
 });
+
+// Reject excessive traffic before parsing bodies, loading sessions or querying data.
+app.use('/api', traffic.api, traffic.apiWrite);
+app.use(traffic.web);
+app.use('/login', traffic.login);
+app.use('/admin/change-password', traffic.passwordChange);
 
 app.use(logger('dev'));
 app.use(express.json());

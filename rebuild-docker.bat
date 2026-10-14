@@ -1,92 +1,76 @@
 @echo off
-setlocal
-
+setlocal EnableExtensions
+cd /d "%~dp0"
 color 0A
 
-set IMAGE_NAME=ai-fish-sort-api
-set CONTAINER_NAME=ai-fish-sort-api
-set NETWORK_NAME=ai-fish-sort-net
-set HOST_PORT=3000
-set CONTAINER_PORT=3000
+set "IMAGE_NAME=ai-fish-sort-api"
+set "CONTAINER_NAME=ai-fish-sort-api"
+set "ENV_FILE=.env"
+if not defined FISH_HTTP_PORT set "FISH_HTTP_PORT=3000"
+if not defined FISH_DB_HOST set "FISH_DB_HOST=host.docker.internal"
 
 echo ===================================================
-echo  AI FISH SORT API - DOCKER REBUILD
+echo  AI FISH SORT - LOCAL DOCKER REBUILD
+echo  URL: http://localhost:%FISH_HTTP_PORT%
 echo ===================================================
-echo.
 
-echo Tarkistetaan Docker...
-docker info >NUL 2>NUL
-if %ERRORLEVEL% NEQ 0 (
-    color 0C
-    echo.
-    echo VIRHE: Docker ei ole kaynnissa tai docker-komento ei ole saatavilla.
-    pause
-    exit /b 1
+where docker >NUL 2>&1
+if errorlevel 1 (
+    echo VIRHE: Docker ei loydy PATH-muuttujasta.
+    goto :fail
 )
-echo       Docker OK.
-echo.
-
-echo Tarkistetaan Docker-verkko...
-docker network inspect %NETWORK_NAME% >NUL 2>NUL
-if %ERRORLEVEL% NEQ 0 (
-    docker network create %NETWORK_NAME% >NUL
-    if %ERRORLEVEL% NEQ 0 (
-        color 0C
-        echo.
-        echo VIRHE: Docker-verkon luonti epaonnistui!
-        pause
-        exit /b 1
-    )
+docker info >NUL 2>&1
+if errorlevel 1 (
+    echo VIRHE: Docker Desktop ei ole kaynnissa tai Linux-kontit eivat ole saatavilla.
+    goto :fail
 )
-echo       Verkko OK: %NETWORK_NAME%
-echo.
-
-REM Pysayta ja poista vanha kontti, jos se on olemassa.
-echo [1/3] Pysaytetaan vanha kontti...
-docker stop %CONTAINER_NAME% >NUL 2>NUL
-docker rm %CONTAINER_NAME% >NUL 2>NUL
-echo       Valmis.
-echo.
-
-REM Rakenna uusi image.
-echo [2/3] Rakennetaan uusi Docker-image...
-docker build -t %IMAGE_NAME% .
-if %ERRORLEVEL% NEQ 0 (
-    color 0C
-    echo.
-    echo VIRHE: Docker build epaonnistui!
-    pause
-    exit /b 1
+if not exist "%ENV_FILE%" (
+    echo VIRHE: %ENV_FILE% puuttuu. Kopioi .env.example ja tayta asetukset.
+    goto :fail
 )
-echo       Valmis.
-echo.
 
-REM Kaynnista uusi kontti.
-echo [3/3] Kaynnistetaan uusi kontti...
+echo [1/3] Rakennetaan uusi image...
+docker build --pull --target runtime -t "%IMAGE_NAME%" .
+if errorlevel 1 goto :fail
+
+echo [2/3] Korvataan vanha sovelluskontti...
+docker stop "%CONTAINER_NAME%" >NUL 2>&1
+docker rm "%CONTAINER_NAME%" >NUL 2>&1
+
+echo [3/3] Kaynnistetaan paikallinen kontti...
 docker run -d ^
-    --name %CONTAINER_NAME% ^
+    --init ^
+    --name "%CONTAINER_NAME%" ^
     --restart unless-stopped ^
-    --network %NETWORK_NAME% ^
-    -p %HOST_PORT%:%CONTAINER_PORT% ^
-    --env-file .env ^
+    -p "127.0.0.1:%FISH_HTTP_PORT%:3000" ^
+    --env-file "%ENV_FILE%" ^
     -e NODE_ENV=production ^
-    %IMAGE_NAME%
+    -e PORT=3000 ^
+    -e "DB_HOST=%FISH_DB_HOST%" ^
+    "%IMAGE_NAME%"
+if errorlevel 1 goto :fail
 
-if %ERRORLEVEL% NEQ 0 (
-    color 0C
-    echo.
-    echo VIRHE: Kontin kaynnistys epaonnistui!
-    pause
-    exit /b 1
+echo Odotetaan tietokantayhteytta ja health-tarkistusta...
+for /l %%I in (1,1,30) do (
+    docker exec "%CONTAINER_NAME%" node -e "fetch('http://127.0.0.1:3000/health', {signal: AbortSignal.timeout(2000)}).then(r => {if (!r.ok) process.exit(1);}).catch(() => process.exit(1));" >NUL 2>&1
+    if not errorlevel 1 goto :ready
+    powershell -NoProfile -Command "Start-Sleep -Seconds 2"
 )
+echo VIRHE: Kontti ei tullut kayttovalmiiksi. Tarkista .env:n DB-asetukset ja tietokanta.
+docker logs --tail 40 "%CONTAINER_NAME%"
+goto :fail
 
+:ready
 echo.
-echo ===================================================
-echo  VALMIS! AI Fish Sort API pyorii portissa %HOST_PORT%
-echo  Kontti: %CONTAINER_NAME%
-echo  Image:  %IMAGE_NAME%
-echo  Logit:  docker logs -f %CONTAINER_NAME%
-echo ===================================================
-echo.
+echo VALMIS! http://localhost:%FISH_HTTP_PORT%
+echo Health: http://localhost:%FISH_HTTP_PORT%/health
+echo Image: %IMAGE_NAME%
+echo Logit: docker logs -f %CONTAINER_NAME%
+if /i not "%~1"=="--no-pause" pause
+exit /b 0
 
-pause
+:fail
+color 0C
+echo VIRHE: AI Fish Sort Docker rebuild epaonnistui.
+if /i not "%~1"=="--no-pause" pause
+exit /b 1
