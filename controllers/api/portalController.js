@@ -4,6 +4,11 @@ function getApiInfo() {
   return {
     name: 'AI Fish Sort API',
     version: 'v1',
+    authentication: {
+      scheme: 'Bearer',
+      header: 'Authorization: Bearer <token>',
+      requiredFor: 'All data reads and writes'
+    },
     endpoints: [
       '/api/v1/species',
       '/api/v1/sorting-units',

@@ -14,6 +14,14 @@
   </section>
 
   <section class="api-guide__section">
+    <h2>Bearer-tunnistautuminen</h2>
+    <p>Kaikki datan haut ja lähetykset vaativat lajittelukoneen Bearer-avaimen. Lähetä se jokaisen pyynnön Authorization-headerissa.</p>
+    <pre><code>Authorization: Bearer OMA_AVAIN</code></pre>
+    <p>Avaimen ylläpitäjä määrittää palvelimen <code>SORTER_API_BEARER_TOKEN</code>-asetuksessa. Avainta ei anneta URL-parametrissa. Puuttuva tai väärä avain palauttaa HTTP 401:n.</p>
+    <pre><code>curl {{baseUrl}}/api/v1/fish-observations -H "Authorization: Bearer OMA_AVAIN"</code></pre>
+  </section>
+
+  <section class="api-guide__section">
     <h2>Peruslistat</h2>
 
     <article class="api-example">
@@ -105,8 +113,7 @@
     <article class="api-example">
       <h3>Näin tallennat uuden kalahavainnon</h3>
       <p>
-        Tallennus vaatii API-avaimen headerissa <code>X-API-Key</code>.
-        Testiavaimena toimii tällä hetkellä <code>salainen</code>.
+        Tallennus vaatii saman Bearer-avaimen kuin datan hakeminen.
       </p>
       <pre><code>POST {{baseUrl}}/api/v1/fish-observations</code></pre>
     </article>
@@ -115,7 +122,7 @@
       <h3>Tarvittavat headerit</h3>
       <p>Lähettävän laitteen tai järjestelmän pitää antaa nämä headerit.</p>
       <pre><code>Content-Type: application/json
-X-API-Key: salainen</code></pre>
+Authorization: Bearer OMA_AVAIN</code></pre>
     </article>
 
     <article class="api-example">
@@ -143,7 +150,7 @@ X-API-Key: salainen</code></pre>
     <article class="api-example">
       <h3>cURL-esimerkki</h3>
       <p>Tällä voi testata tallennusta komentoriviltä.</p>
-      <pre><code>curl -X POST {{baseUrl}}/api/v1/fish-observations -H "Content-Type: application/json" -H "X-API-Key: salainen" -d "{\"observedAt\":\"2026-04-20T12:30:00Z\",\"speciesId\":\"11111111-1111-4111-8111-111111111111\",\"sortingUnitId\":\"aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa\",\"batchId\":\"ba111111-1111-4111-8111-111111111111\",\"sex\":\"male\",\"lengthMm\":720,\"weightG\":2850,\"aiConfidence\":0.9421,\"metadata\":{\"source\":\"camera_1\",\"imageFrame\":1042}}"</code></pre>
+      <pre><code>curl -X POST {{baseUrl}}/api/v1/fish-observations -H "Content-Type: application/json" -H "Authorization: Bearer OMA_AVAIN" -d "{\"observedAt\":\"2026-04-20T12:30:00Z\",\"speciesId\":\"11111111-1111-4111-8111-111111111111\",\"sortingUnitId\":\"aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa\",\"batchId\":\"ba111111-1111-4111-8111-111111111111\",\"sex\":\"male\",\"lengthMm\":720,\"weightG\":2850,\"aiConfidence\":0.9421,\"metadata\":{\"source\":\"camera_1\",\"imageFrame\":1042}}"</code></pre>
     </article>
   </section>
 

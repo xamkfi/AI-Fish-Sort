@@ -1,7 +1,7 @@
 'use strict';
 
 (function () {
-  const API_BASE = '/api/v1';
+  const API_BASE = '/api/dashboard';
 
   function buildQueryString(params) {
     const usp = new URLSearchParams();

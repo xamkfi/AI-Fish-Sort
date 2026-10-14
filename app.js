@@ -18,6 +18,7 @@ var sessionStore = new SequelizeStore({
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 var apiV1Router = require('./routes/api/v1');
+var dashboardApiRouter = require('./routes/api/dashboard');
 var loginRouter = require('./routes/login');
 var adminRouter = require('./routes/admin');
 var requireLogin = require('./middleware/requireLogin');
@@ -75,6 +76,7 @@ app.sessionStore = sessionStore;
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/api/v1', apiV1Router);
+app.use('/api/dashboard', dashboardApiRouter);
 app.use('/login', loginRouter);
 app.use('/admin', requireLogin, adminRouter);
 

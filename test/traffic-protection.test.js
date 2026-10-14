@@ -61,12 +61,12 @@ test('API quota includes 404s, returns structured 429 and leaves web quota separ
   assert.ok(Number(response.headers.get('retry-after')) > 0);
   assert.match(response.headers.get('ratelimit'), /api/);
   assert.equal(response.headers.get('cache-control'), 'no-store');
-  assert.equal((await request('/')).status, 200);
+  assert.equal((await request('/users')).status, 200);
 });
 
 test('website quota covers static assets, unknown pages and HEAD requests', async (t) => {
   const { request } = await startApp(t);
-  assert.equal((await request('/')).status, 200);
+  assert.equal((await request('/users')).status, 200);
   await request('/stylesheets/style.css');
   await request('/missing', { method: 'HEAD' });
   const response = await request('/?different=1');
@@ -134,8 +134,8 @@ test('health remains available when website and API quotas are exhausted', async
   const original = db.sequelize.authenticate;
   db.sequelize.authenticate = async () => {};
   t.after(() => { db.sequelize.authenticate = original; });
-  await request('/');
-  assert.equal((await request('/')).status, 429);
+  await request('/users');
+  assert.equal((await request('/users')).status, 429);
   await request('/api/missing');
   assert.equal((await request('/api/missing')).status, 429);
   for (let i = 0; i < 4; i++) {

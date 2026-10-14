@@ -2,6 +2,12 @@
 
 (function() {
   const API_BASE_URL = window.location.origin;
+  function requestHeaders() {
+    const headers = { Accept: 'application/json' };
+    const token = document.getElementById('builderBearerToken').value.trim();
+    if (token) headers.Authorization = 'Bearer ' + token;
+    return headers;
+  }
   const builderState = {
     target: 'fish-observations',
     groupBy: 'species',
@@ -468,10 +474,10 @@
 
   async function loadBuilderOptions() {
     const [speciesResponse, sortingUnitsResponse, catchLocationsResponse, batchesResponse] = await Promise.all([
-      fetch(`${API_BASE_URL}/api/v1/species`),
-      fetch(`${API_BASE_URL}/api/v1/sorting-units`),
-      fetch(`${API_BASE_URL}/api/v1/catch-locations`),
-      fetch(`${API_BASE_URL}/api/v1/fish-batches`)
+      fetch(`${API_BASE_URL}/api/v1/species`, { headers: requestHeaders() }),
+      fetch(`${API_BASE_URL}/api/v1/sorting-units`, { headers: requestHeaders() }),
+      fetch(`${API_BASE_URL}/api/v1/catch-locations`, { headers: requestHeaders() }),
+      fetch(`${API_BASE_URL}/api/v1/fish-batches`, { headers: requestHeaders() })
     ]);
 
     const speciesData = await speciesResponse.json().catch(() => ({ data: [] }));
@@ -533,9 +539,7 @@
 
     try {
       const response = await fetch(getBuiltUrl(), {
-        headers: {
-          Accept: 'application/json'
-        }
+        headers: requestHeaders()
       });
 
       const data = await response.json().catch(() => ({
@@ -573,8 +577,12 @@
   async function init() {
     const elements = getBuilderElements();
 
-    await loadBuilderOptions().catch(() => {});
     renderAll();
+
+    document.getElementById('builderBearerToken').addEventListener('change', async () => {
+      await loadBuilderOptions().catch(() => {});
+      renderAll();
+    });
 
     elements.target.addEventListener('change', (event) => {
       builderState.target = event.target.value;

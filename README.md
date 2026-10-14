@@ -36,7 +36,7 @@ Tämä käynnistää järjestelmän käyttämän MySQL-tietokannan. Docker Deskt
 
 ### 2. Yhdistämisosoite ja tunnukset
 
-Kopioi `.env.example` tiedostoksi `.env` ja täytä `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `SESSION_SECRET` ja `WRITE_API_KEY`. `DB_PASSWORD` on tietokannan nykyinen salasana. Paikallisessa Node.js-ajossa `DB_HOST` on tietokannan osoite, esimerkiksi `127.0.0.1`.
+Kopioi `.env.example` tiedostoksi `.env` ja täytä `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `SESSION_SECRET` ja `SORTER_API_BEARER_TOKEN`. `DB_PASSWORD` on tietokannan nykyinen salasana. Paikallisessa Node.js-ajossa `DB_HOST` on tietokannan osoite, esimerkiksi `127.0.0.1`.
 
 Kontin paikallinen rebuild korvaa tietokantahostin arvolla `host.docker.internal`, joten sovellus löytää Docker Desktopin kautta koneen porttiin 3306 julkaistun MySQL:n. Muut tietokanta-asetukset tulevat `.env`:stä. Vanha `config/config.json` toimii edelleen paikallisen Node.js-ajon varana niille asetuksille, joita `.env` ei määritä. Sitä tai `.env`:tä ei kopioida imageen.
 
@@ -102,6 +102,21 @@ docker run --rm --env-file .env -e DB_HOST=host.docker.internal ai-fish-sort-mig
 Sovellusimagen mukana ovat vain ajonaikaiset riippuvuudet. Paikalliset tietokanta-asetusten ja health-reitin testit ajetaan komennolla `npm test`.
 
 ## Huomioitavaa
+
+### Lajittelukoneen Bearer-avain
+
+Kaikki `/api/v1`-datan haut ja lähetykset vaativat `Authorization: Bearer <avain>` -otsakkeen. Tämä koskee kalahavaintoja (myös yksittäisen havainnon hakua ja POST-tallennusta), eriä, lajitteluyksiköitä ja `/locations`-aliasta, pyyntipaikkoja, kalalajeja sekä kaikkia tilastohakuja. API:n kuvaus `/api/v1` ja `/api/v1/info` sekä API-opas ovat julkisia; ne eivät palauta koneen dataa.
+
+Palvelimen avain määritetään `.env`-rivillä `SORTER_API_BEARER_TOKEN`. Käytä kryptografisesti satunnaista avainta. Avain välitetään vain Authorization-otsakkeessa; URL-parametreja, vanhaa `X-API-Key`-otsaketta tai `WRITE_API_KEY`-asetusta ei hyväksytä tunnistautumiseksi. Puuttuva tai väärä avain palauttaa HTTP 401:n ja `WWW-Authenticate: Bearer` -haasteen. Puuttuva palvelinasetus estää datan käytön HTTP 503:lla. Avaimia verrataan vakioaikaisesti SHA-256-tiivisteistä, eikä niitä lisätä virhevastauksiin, näkymiin tai JavaScript-tiedostoihin.
+
+Dashboard on julkinen ja hakee datansa erillisestä, vain lukemiseen tarkoitetusta `/api/dashboard`-lukureitistä. Bäkkäri käyttää tähän palvelimelle määritettyä Bearer-avainta automaattisesti, ja suorittaa samat datan lukukäsittelijät palvelimen sisällä. Selaimelle ei palauteta avainta eikä sen tarvitse kirjautua. Lukureitillä ovat vain dashboardin käyttämät haut; lähetykset palauttavat HTTP 405:n. Dashboardissa näkyvä data on myös lukureittien kautta julkista. Koneen `/api/v1`-kutsut vaativat edelleen aina asiakkaan Bearer-avaimen, eikä admin-istunto korvaa sitä. Admin-hallinta vaatii edelleen kirjautumisen. Julkisessa API Builderissa koneen avain syötetään itse salasanakenttään; sitä ei tallenneta localStorageen, evästeeseen tai URL:iin.
+
+```bash
+curl http://localhost:3000/api/v1/fish-observations -H "Authorization: Bearer OMA_AVAIN"
+curl -X POST http://localhost:3000/api/v1/fish-observations -H "Authorization: Bearer OMA_AVAIN" -H "Content-Type: application/json" -d '{"speciesId":"KALALAJIN_ID","observedAt":"2026-10-14T10:00:00Z"}'
+```
+
+Vaihda avain muuttamalla `.env`:n arvo ja ajamalla rebuild. Muiden järjestelmien pitää päivittää sama avain omiin asetuksiinsa. Palvelimen ulkopuolisissa yhteyksissä käytä HTTPS:ää, sillä Bearer-avain antaa haltijalleen pääsyn sekä lukemiseen että kirjoittamiseen. Otsakemuoto perustuu [Bearer-standardin kohtaan 2.1](https://www.rfc-editor.org/rfc/rfc6750.html#section-2.1).
 
 ### Pyyntömäärien rajoittaminen
 
