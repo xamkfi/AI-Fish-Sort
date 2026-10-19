@@ -32,50 +32,22 @@ Aja ensin tietokannan käynnistyskomento:
 StartDatabase
 ```
 
-Tämä käynnistää järjestelmän käyttämän MySQL-tietokannan. Docker Desktopin pitää käyttää Linux-kontteja. Oletuksena käytetään porttia 3306. Jos portti on käytössä tai haluat käyttää eri porttia, vaihda se **MySQL/docker-compose.yml** -tiedostoon ja sovelluksen `.env`-tiedoston `DB_PORT`-asetukseen. Odota, että MySQL on käynnistynyt ennen sovelluksen rebuildia. Rebuild ei käynnistä tai nollaa tietokantaa.
+Tämä käynnistää järjestelmän käyttämän MySQL-tietokannan. Oletuksena käytetään porttia 3306. Jos portti on käytössä tai haluat käyttää eri porttia, vaihda se **MySQL/docker-compose.yml** -tiedostoon ja sovelluksen `.env`:n `DB_PORT`-asetukseen.
 
 ### 2. Yhdistämisosoite ja tunnukset
+Tietokanta-asetukset luetaan `.env`:stä: `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER` ja `DB_PASSWORD`. Sovellus ja Sequelize-migraatiot käyttävät yhteistä `config/config.js`-tiedostoa. Vanhaa JSON-asetustiedostoa ei tarvita eikä lueta. Kopioi uuden asennuksen pohjaksi `.env.example` ja täytä oman ympäristön arvot.
 
-Kopioi `.env.example` tiedostoksi `.env` ja täytä `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`, `SESSION_SECRET` ja `SORTER_API_BEARER_TOKEN`. `DB_PASSWORD` on tietokannan nykyinen salasana. Paikallisessa Node.js-ajossa `DB_HOST` on tietokannan osoite, esimerkiksi `127.0.0.1`.
-
-Kontin paikallinen rebuild korvaa tietokantahostin arvolla `host.docker.internal`, joten sovellus löytää Docker Desktopin kautta koneen porttiin 3306 julkaistun MySQL:n. Muut tietokanta-asetukset tulevat `.env`:stä. Vanha `config/config.json` toimii edelleen paikallisen Node.js-ajon varana niille asetuksille, joita `.env` ei määritä. Sitä tai `.env`:tä ei kopioida imageen.
+Paikallinen `npm start` käyttää `.env`:n tietokantahostia. Windowsin `rebuild-docker.bat` korvaa kontin hostin arvolla `host.docker.internal`, ellei `FISH_DB_HOST` ole erikseen asetettu. Bearer-avain tulee asetuksesta `SORTER_API_BEARER_TOKEN`; sitä käytetään kaikkien koneen `/api/v1`-datahakujen ja lähetysten Authorization-otsakkeessa. Dashboard käyttää julkista `/api/dashboard`-lukureittiä ja pitää palvelimen avaimen bäkkärissä.
 
 ### 3. Käynnistä sovellus Dockerilla
 
 Kun tietokanta on käynnissä ja yhdistämisosoite on oikein, aja seuraava komento:
 
-Jos kanta on uusi, aja alempana kuvatut migraatio- ja seed-komennot ennen ensimmäistä sovelluskontin käynnistystä.
-
-```powershell
-.\rebuild-docker.bat
-```
-
-Skripti rakentaa imagen `ai-fish-sort-api` ennen vanhan samannimisen sovelluskontin korvaamista. Se odottaa `/health`-reitiltä onnistunutta tietokantayhteyttä ja näyttää virhetilanteessa kontin lokit. Sovellus avautuu osoitteessa http://localhost:3000. Kontti toimii `node`-käyttäjänä ja käynnistyy automaattisesti uudelleen Dockerin käynnistyessä.
-
-Skripti toimii myös toisesta työhakemistosta. Valinnainen `--no-pause` sopii automaattisiin ajoihin. Portin tai ulkoisen tietokantahostin voi vaihtaa ennen ajoa:
-
-```powershell
-$env:FISH_HTTP_PORT = '3002'
-$env:FISH_DB_HOST = 'host.docker.internal'
-.\rebuild-docker.bat --no-pause
-```
-
-Paikallinen rebuild julkaisee HTTP-portin vain osoitteeseen `127.0.0.1`. Itsenäisen imagen voi rakentaa ja käynnistää myös muussa Docker-ympäristössä; tällöin `.env`:n `DB_HOST` pitää osoittaa siellä saavutettavaan tietokantaan:
-
 ```bash
-docker build --target runtime -t ai-fish-sort-api .
-docker run -d --init --name ai-fish-sort-api --restart unless-stopped --env-file .env -p 3000:3000 ai-fish-sort-api
-docker logs -f ai-fish-sort-api
+rebuild-docker
 ```
 
-`/health` palauttaa HTTP 200 toimivalla tietokantayhteydellä ja HTTP 503 yhteyden epäonnistuessa. Myös Dockerin healthcheck käyttää tätä reittiä. Sovelluksen nykyinen käynnistys luo puuttuvat mallitaulut Sequelize `sync()` -kutsulla; rebuild ei aja seedereitä tai tietokannan resetointia.
-
-Migraatioita varten Dockerfilessä on erillinen target, joka sisältää `sequelize-cli`:n:
-
-```bash
-docker build --target migrations -t ai-fish-sort-migrations .
-docker run --rm --env-file .env -e DB_HOST=host.docker.internal ai-fish-sort-migrations
-```
+Tämä komento sulkee olemassa olevan kontin, rakentaa tarvittavat osat uudelleen ja käynnistää kontin uudestaan.
 
 ### 4. Vaihtoehtoinen käynnistystapa
 
@@ -92,53 +64,11 @@ Tietokanta voidaan tyhjentää ja luoda uudelleen komennolla:
 ```bash
 resetDatabase
 ```
-**Reset poistaa nykyisen tietokannan sisällön. Käytä sitä vain tyhjennettävään kehityskantaan.** Uuteen kantaan admin-tunnukset ja mock-up data voidaan luoda migraatioimagen avulla ilman resetointia:
+**Komento tulee ajaa kun järjestelmä käynnistetään ensimmäistä kertaa. Tämän avulla saadaa admin-tunnukset sekä mock-up data.**
 
-```bash
-docker run --rm --env-file .env -e DB_HOST=host.docker.internal ai-fish-sort-migrations npm run db:migrate
-docker run --rm --env-file .env -e DB_HOST=host.docker.internal ai-fish-sort-migrations npm run db:seed
-```
-
-Sovellusimagen mukana ovat vain ajonaikaiset riippuvuudet. Paikalliset tietokanta-asetusten ja health-reitin testit ajetaan komennolla `npm test`.
+Mock-up dataa voidaan myös generoida lisää ajamalla generate-data.bat skripti. Skripti lisää tietokantaan satunnaisia kalahavaintoja hyödyntäen api rajapintoja
 
 ## Huomioitavaa
-
-### Lajittelukoneen Bearer-avain
-
-Kaikki `/api/v1`-datan haut ja lähetykset vaativat `Authorization: Bearer <avain>` -otsakkeen. Tämä koskee kalahavaintoja (myös yksittäisen havainnon hakua ja POST-tallennusta), eriä, lajitteluyksiköitä ja `/locations`-aliasta, pyyntipaikkoja, kalalajeja sekä kaikkia tilastohakuja. API:n kuvaus `/api/v1` ja `/api/v1/info` sekä API-opas ovat julkisia; ne eivät palauta koneen dataa.
-
-Palvelimen avain määritetään `.env`-rivillä `SORTER_API_BEARER_TOKEN`. Käytä kryptografisesti satunnaista avainta. Avain välitetään vain Authorization-otsakkeessa; URL-parametreja, vanhaa `X-API-Key`-otsaketta tai `WRITE_API_KEY`-asetusta ei hyväksytä tunnistautumiseksi. Puuttuva tai väärä avain palauttaa HTTP 401:n ja `WWW-Authenticate: Bearer` -haasteen. Puuttuva palvelinasetus estää datan käytön HTTP 503:lla. Avaimia verrataan vakioaikaisesti SHA-256-tiivisteistä, eikä niitä lisätä virhevastauksiin, näkymiin tai JavaScript-tiedostoihin.
-
-Dashboard on julkinen ja hakee datansa erillisestä, vain lukemiseen tarkoitetusta `/api/dashboard`-lukureitistä. Bäkkäri käyttää tähän palvelimelle määritettyä Bearer-avainta automaattisesti, ja suorittaa samat datan lukukäsittelijät palvelimen sisällä. Selaimelle ei palauteta avainta eikä sen tarvitse kirjautua. Lukureitillä ovat vain dashboardin käyttämät haut; lähetykset palauttavat HTTP 405:n. Dashboardissa näkyvä data on myös lukureittien kautta julkista. Koneen `/api/v1`-kutsut vaativat edelleen aina asiakkaan Bearer-avaimen, eikä admin-istunto korvaa sitä. Admin-hallinta vaatii edelleen kirjautumisen. Julkisessa API Builderissa koneen avain syötetään itse salasanakenttään; sitä ei tallenneta localStorageen, evästeeseen tai URL:iin.
-
-```bash
-curl http://localhost:3000/api/v1/fish-observations -H "Authorization: Bearer OMA_AVAIN"
-curl -X POST http://localhost:3000/api/v1/fish-observations -H "Authorization: Bearer OMA_AVAIN" -H "Content-Type: application/json" -d '{"speciesId":"KALALAJIN_ID","observedAt":"2026-10-14T10:00:00Z"}'
-```
-
-Vaihda avain muuttamalla `.env`:n arvo ja ajamalla rebuild. Muiden järjestelmien pitää päivittää sama avain omiin asetuksiinsa. Palvelimen ulkopuolisissa yhteyksissä käytä HTTPS:ää, sillä Bearer-avain antaa haltijalleen pääsyn sekä lukemiseen että kirjoittamiseen. Otsakemuoto perustuu [Bearer-standardin kohtaan 2.1](https://www.rfc-editor.org/rfc/rfc6750.html#section-2.1).
-
-### Pyyntömäärien rajoittaminen
-
-Sovellus käyttää `express-rate-limit`-kirjastoa. Rajat lasketaan asiakkaan IP-osoitteesta; IPv6-osoitteet ryhmitellään `/56`-aliverkoittain osoitteita vaihtamalla tehtävän kiertämisen estämiseksi. Raja tarkistetaan ennen rungon jäsentämistä, istunnon lataamista ja varsinaisten reittien tietokantakyselyitä.
-
-| Kohde | Oletus / IP | `.env`-asetus |
-| --- | --- | --- |
-| Sivut, admin, staattiset tiedostot ja sivujen 404-pyynnöt | 300 / minuutti | `RATE_LIMIT_WEB_MAX` |
-| `/api` ja sen alireitit, myös virheelliset pyynnöt | 120 / minuutti | `RATE_LIMIT_API_MAX` |
-| API-kirjoitukset: muut kuin GET, HEAD ja OPTIONS | 60 / minuutti | `RATE_LIMIT_API_WRITE_MAX` |
-| POST `/login` | 10 / 15 minuuttia | `RATE_LIMIT_AUTH_MAX` |
-| POST `/admin/change-password` | 10 / 15 minuuttia, erillinen laskuri | `RATE_LIMIT_AUTH_MAX` |
-
-API-kirjoitus kuluttaa myös API:n yleistä kiintiötä. Kirjautuminen ja salasanan vaihto kuluttavat myös sivujen kiintiötä. Kirjautumisrajassa lasketaan kaikki POST-yritykset, myös onnistuneet ja virheelliset. Tavallisten rajojen aikaikkuna säädetään millisekunteina asetuksella `RATE_LIMIT_WINDOW_MS` (60000), kirjautumisrajan aikaikkuna asetuksella `RATE_LIMIT_AUTH_WINDOW_MS` (900000). Asetusten pitää olla positiivisia kokonaislukuja. Nykyinen datageneraattori lähettää kaksi havaintoa minuutissa, joten se mahtuu oletusrajoihin.
-
-Rajan ylittävä pyyntö saa HTTP 429:n ja `Retry-After`-otsakkeen. API palauttaa normaalin virherakenteen koodilla `RATE_LIMIT_EXCEEDED`; sivut palauttavat suomenkielisen tekstin. Vastauksissa ovat `RateLimit`- ja `RateLimit-Policy`-otsakkeet. `/health` ohittaa rajoitukset, jotta Dockerin valmiustarkistukset eivät kuluta käyttäjien kiintiöitä. `.env`-muutokset tulevat käyttöön seuraavalla rebuildilla.
-
-Paikallisessa Docker-ajossa `TRUST_PROXY=false`. Asiakkaan lähettämää `X-Forwarded-For`-otsaketta ei tällöin käytetä IP-osoitteena. Reverse proxyn takana määritä `TRUST_PROXY`-arvoksi vain todellisten proxyjen IP-osoitteet tai CIDR-verkot pilkuilla eroteltuna ja estä asiakkaiden suora pääsy sovellusporttiin. Proxyjen pitää välittää asiakkaan oikea osoite. Asetus ei hyväksy yleistä `true`-arvoa, hyppymäärää tai kaikkia osoitteita luottavaa `/0`-verkkoa. Asiakkaat, joilla on yhteinen julkinen IP tai joiden osoitteet Docker välittää samana yhdyskäytävän osoitteena, jakavat kiintiön.
-
-Laskurit ovat yhden Node.js-prosessin muistissa ja nollautuvat sovelluksen käynnistyessä uudelleen. Useaa sovelluskonttia varten tarvitaan yhteinen laskurivarasto, esimerkiksi Redis. Rate limitit eivät yksin suojaa verkkoyhteyden tukkivalta DDoS-liikenteeltä.
-
-Toteutuksen asetukset ja proxytoiminta: [express-rate-limit](https://express-rate-limit.mintlify.app/reference/configuration), [Expressin proxyohje](https://expressjs.com/en/guide/behind-proxies/).
 
 AI Fish Sort -järjestelmä on vielä kehitysvaiheessa. Lopullista lajittelulaitetta ei ole vielä käytössä, eikä lopullinen kerättävä datasisältö ole täysin varmistunut.
 

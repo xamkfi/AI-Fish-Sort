@@ -2,14 +2,8 @@
 
 require('dotenv').config({ quiet: true });
 
-const fs = require('fs');
-const path = require('path');
-const legacyPath = path.join(__dirname, 'config.json');
-// Keep existing local installations working. Containers use only DB_* settings.
-const legacy = fs.existsSync(legacyPath) ? require(legacyPath) : {};
-
-function databaseConfig(environment) {
-  const config = Object.assign({
+function databaseConfig() {
+  const config = {
     username: 'root',
     password: null,
     database: 'aifishsortdb',
@@ -18,7 +12,7 @@ function databaseConfig(environment) {
     port: 3306,
     seederStorage: 'sequelize',
     seederStorageTableName: 'SequelizeData'
-  }, legacy[environment]);
+  };
 
   const overrides = {
     DB_HOST: 'host',
@@ -40,7 +34,7 @@ function databaseConfig(environment) {
 }
 
 module.exports = {
-  development: databaseConfig('development'),
-  test: databaseConfig('test'),
-  production: databaseConfig('production')
+  development: databaseConfig(),
+  test: databaseConfig(),
+  production: databaseConfig()
 };

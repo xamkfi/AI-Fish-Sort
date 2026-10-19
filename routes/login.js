@@ -15,7 +15,7 @@ router.get('/', csrfProtection, (req, res) => {
 
   res.render('login', {
     layout: false,
-    title: 'Kirjaudu sisaan',
+    title: 'Kirjaudu sisään',
     csrfToken: req.csrfToken(),
     error: null
   });
@@ -37,9 +37,9 @@ router.post('/', csrfProtection, async (req, res) => {
 
   res.render('login', {
     layout: false,
-    title: 'Kirjaudu sisaan',
+    title: 'Kirjaudu sisään',
     csrfToken: req.csrfToken(),
-    error: 'Virheellinen kayttajanimi tai salasana'
+    error: 'Virheellinen käyttäjänimi tai salasana'
   });
 });
 

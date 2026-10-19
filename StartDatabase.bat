@@ -15,7 +15,7 @@ echo.
 
 if not exist "%COMPOSE_FILE%" (
     color 0C
-    echo VIRHE: docker-compose.yml ei loydy kansiosta:
+    echo VIRHE: docker-compose.yml ei löydy kansiosta:
     echo %DB_DIR%
     echo.
     pause
@@ -30,7 +30,7 @@ if %ERRORLEVEL% EQU 0 (
     if %ERRORLEVEL% NEQ 0 (
         color 0C
         echo VIRHE: Docker Compose ei ole saatavilla.
-        echo Asenna Docker Desktop tai varmista, etta docker compose toimii.
+        echo Asenna Docker Desktop tai varmista, että docker compose toimii.
         echo.
         pause
         exit /b 1
@@ -45,7 +45,7 @@ if %ERRORLEVEL% NEQ 0 (
     if %ERRORLEVEL% NEQ 0 (
         color 0C
         echo.
-        echo VIRHE: Docker-verkon luonti epaonnistui.
+        echo VIRHE: Docker-verkon luonti epäonnistui.
         echo.
         pause
         exit /b 1
@@ -57,7 +57,7 @@ echo.
 pushd "%DB_DIR%"
 if %ERRORLEVEL% NEQ 0 (
     color 0C
-    echo VIRHE: mySQL-kansioon siirtyminen epaonnistui.
+    echo VIRHE: mySQL-kansioon siirtyminen epäonnistui.
     echo.
     pause
     exit /b 1
@@ -69,20 +69,20 @@ if %ERRORLEVEL% NEQ 0 (
     popd
     color 0C
     echo.
-    echo VIRHE: docker compose down epaonnistui.
+    echo VIRHE: docker compose down epäonnistui.
     pause
     exit /b 1
 )
 echo       Valmis.
 echo.
 
-echo [2/2] Kaynnistetaan tietokanta uudelleen...
+echo [2/2] Käynnistetään tietokanta uudelleen...
 %COMPOSE% -p %PROJECT_NAME% up -d
 if %ERRORLEVEL% NEQ 0 (
     popd
     color 0C
     echo.
-    echo VIRHE: docker compose up -d epaonnistui.
+    echo VIRHE: docker compose up -d epäonnistui.
     pause
     exit /b 1
 )
@@ -91,7 +91,7 @@ popd
 
 echo.
 echo ===================================================
-echo  VALMIS! MySQL-kontti kaynnistyy taustalla.
+echo  VALMIS! MySQL-kontti käynnistyy taustalla.
 echo  Kontti: aifishsort_mysql
 echo  Portti: 3306
 echo  Logit:  docker logs -f aifishsort_mysql

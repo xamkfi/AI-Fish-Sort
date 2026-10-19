@@ -12,7 +12,7 @@ if %ERRORLEVEL% NEQ 0 (
     color 0C
     echo.
     echo ===================================================
-    echo VIRHE: Tietokannan nollaus epaonnistui.
+    echo VIRHE: Tietokannan nollaus epäonnistui.
     echo ===================================================
     pause
     exit /b 1

@@ -8,16 +8,20 @@
 <div class="row mb-5">
     <div class="col-12">
         <div class="card p-4 shadow-sm border-0">
-            <h4 class="mb-4 text-primary"><i class="bi bi-plus-circle-fill me-2"></i>Lisaa uusi kala</h4>
+            <h4 class="mb-4 text-primary"><i class="bi bi-plus-circle-fill me-2"></i>Lisää uusi kala</h4>
 
             <form id="addFishForm">
                 <div class="row">
-                    <div class="col-md-6 mb-3">
+                    <div class="col-md-4 mb-3">
                         <label class="form-label fw-bold">Kalan nimi *</label>
                         <input type="text" class="form-control bg-light" id="fishName" required placeholder="Esim. Hauki">
                     </div>
-                    <div class="col-md-6 mb-3">
-                        <label class="form-label fw-bold text-muted">Sisainen tunniste</label>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-bold">Tieteellinen nimi</label>
+                        <input type="text" class="form-control bg-light" id="fishScientificName" placeholder="Esim. Esox lucius">
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <label class="form-label fw-bold text-muted">Sisäinen tunniste</label>
                         <input type="text" class="form-control bg-light" value="Luodaan automaattisesti UUID:na" disabled>
                     </div>
                 </div>
@@ -36,7 +40,7 @@
     <div class="col-12 mb-3 d-flex flex-wrap justify-content-between align-items-center gap-3">
         <h4 class="mb-0">Kaikki kalat</h4>
         <button class="btn btn-sm btn-outline-secondary" type="button" id="refreshFishButton">
-            <i class="bi bi-arrow-clockwise me-1"></i>Paivita lista
+            <i class="bi bi-arrow-clockwise me-1"></i>Päivitä lista
         </button>
     </div>
 
@@ -60,9 +64,15 @@
                 <form id="editFishForm">
                     <input type="hidden" id="editFishRecordId">
 
-                    <div class="mb-3">
-                        <label class="form-label fw-bold">Kalan nimi *</label>
-                        <input type="text" class="form-control bg-light" id="editFishName" required>
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Kalan nimi *</label>
+                            <input type="text" class="form-control bg-light" id="editFishName" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label fw-bold">Tieteellinen nimi</label>
+                            <input type="text" class="form-control bg-light" id="editFishScientificName" placeholder="Esim. Esox lucius">
+                        </div>
                     </div>
                 </form>
             </div>
@@ -72,7 +82,7 @@
                 <div class="d-flex justify-content-end gap-2">
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Peruuta</button>
                     <button type="submit" form="editFishForm" class="btn btn-primary fw-bold">
-                        <i class="bi bi-save me-2"></i>Paivita kala
+                        <i class="bi bi-save me-2"></i>Päivitä kala
                     </button>
                 </div>
             </div>
